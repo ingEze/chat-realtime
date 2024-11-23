@@ -1,0 +1,159 @@
+:root {
+    --green: #13a113;
+}
+
+body {
+    position: relative;
+}
+
+.container {
+    width: 90%;
+    max-width: 400px;
+}
+
+.header {
+    text-align: center;
+    padding: 10px;
+}
+
+#formContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 2;
+    padding: 15px;
+}
+
+.form-group{
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    font-size: 1.3rem;
+    margin-block: 8px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 11px 2px;
+    padding-bottom: 2px;
+    border: none;
+    border-bottom: 2px solid #d1d1d1;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    outline: none;
+    background: transparent;    
+}
+
+.error-auth {
+    display: none;
+    margin-top: 5px;
+    color: rgb(255, 0, 0);
+    font-size: 1.2rem;
+}
+
+.active {
+    display: block;
+}
+
+.button-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-block: 15px;
+}
+
+.btn {
+    width: 45%;
+    margin-top: 15px;
+    padding-block: 10px;
+    border: 1px solid #d1d1d1;
+    border-radius: 7px;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    background: #212121;
+    transition: .1s;
+}
+
+.btn:hover {
+    background: #313131;
+}
+
+.return-box {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+}
+
+.btn-return {
+    position: relative;
+    font-weight: 600;
+    padding: 7px;
+    font-size: clamp(16px, 2vw, 20px);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.btn-return::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--green);
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.3s ease-out;
+}
+
+.btn-return:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+/* finish register */
+.container-username {
+    box-shadow: 0 0 20px 10px #323232;
+    padding: 10px;
+    border-radius: 10px;
+    width: 300px;
+}
+
+#formUsername {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    gap: 15px;
+    padding: 5px 10px;
+}
+
+#formUsername label {
+    font-size: clamp(20px, 2vw, 35px);
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+#inputUsername {
+    outline: none;
+    border: none;
+    background: transparent;
+    border-bottom: 1px solid var(--green);
+    padding: 5px;
+    font-size: 15px;
+    margin-top: 10px;
+}
+
+#finishRegister {
+    padding: 7px 5px;
+    border: .5px solid rgb(36, 187, 36);
+    border-radius: 7px;
+    cursor: pointer;
+    color: rgb(36, 187, 36);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 2px;
+    background: #313131;
+    margin-top: 15px;
+}

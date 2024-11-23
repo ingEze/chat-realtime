@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlopiChat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="shortcut icon" href="image/favicon/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+    <form class="chat-container">
+        <div class="chat-header">
+            <button type="button" class="back-button">←</button>
+
+            <div class="user-info">
+                <img src="image/profile1.jpg" alt="" id="userPhoto">
+                <p id="username">nombreUsuario</p>
+            </div>
+        </div>
+        
+        <div class="chat-messages">
+            <div class="message message-received">
+                <div class="message-content">Hola, ¿cómo estás?</div>
+                <div class="message-info">
+                    <span class="message-time">10:30 AM</span>
+                </div>
+            </div>
+            
+            <div class="message message-sent">
+                <div class="message-content">¡Hola! Todo bien, gracias.</div>
+                <div class="message-info">
+                    <span class="message-time">10:31 AM</span>
+                    <div class="read-status">
+                        <i class="fa fa-check check"></i>
+                        <i class="fa fa-check check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <input type="text" class="chat-input" placeholder="Escribe un mensaje...">
+            <button type="button" class="send-button">Enviar</button>
+        </div>
+    </form>
+    <script src="js/chat.js"></script>
+</body>
+</html>
