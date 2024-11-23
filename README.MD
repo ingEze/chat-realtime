@@ -7,7 +7,7 @@ Agregar a otro usuario.
 Comenzar a chatear.
 La aplicación tiene funcionalidades muy limitadas, solo se puede agregar usuarios, cambiar su foto de perfil, su nombre de usuario y chatear.
 
-Es un proyecto a menor escala, con la finalidad de aprender y mejorar.
+It is in production.
 --------------------
 English:
 Real-time chat, using Node.js for the backend, JavaScript and CSS for the frontend, and MongoDB as the database.
