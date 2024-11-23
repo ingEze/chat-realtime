@@ -1,15 +1,17 @@
 import express from 'express'
-import mongose from 'mongose'
+import cors from 'cors'
 
-import { PORT, configMongo } from '../config/config'
+import { userRouter } from './routes/authRoutes.js'
+import { PORT } from '../config/config.js'
+import { connectDB } from './utils/db.js'
 
 const app = express()
+
+app.use(cors())
 app.use(express.json())
 
-mongose.connect(configMongo.dbUri, { useNewUrlParser: true, userUnifiedTopology: true })
-    .then(() => console.log('Database connected'))
-    .catch(error => console.error('Database connection error', error))
-    
-app.use('/api/auth', authRoutes)
+connectDB()
+
+app.use('/api/auth', userRouter)
 
 app.listen(PORT, () => console.log(`server listening on port ${PORT}!`))
