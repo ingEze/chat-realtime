@@ -12,6 +12,10 @@ export class UserValidation {
   }
 
   static validatePassword (password) {
+    if (typeof password !== 'string') {
+      console.error('password validation failed: not a string', password)
+      throw new Error('Password must be a string')
+    }
     return password.length >= 8
   }
 }

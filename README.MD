@@ -1,0 +1,1 @@
+1. Agregar cookies y jwt al inicio de sesión.
