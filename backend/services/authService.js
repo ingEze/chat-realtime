@@ -18,10 +18,7 @@ export const authService = {
     const saltRounds = parseInt(SALT_ROUNDS, 10)
     const salt = await bcrypt.genSalt(saltRounds)
 
-    console.log('generated salt:', salt)
-
     const hashedPassword = await bcrypt.hash(passwordString, salt)
-    console.log('hashed password', hashedPassword)
 
     const tempUser = new User({
       email,
@@ -37,8 +34,6 @@ export const authService = {
   },
 
   async registerUsername ({ userId, username }) {
-    if (!userId) throw new Error('User ID is required')
-
     try {
       UserValidation.validateUsername(username)
     } catch (err) {

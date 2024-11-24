@@ -9,18 +9,16 @@ export class AuthController {
     try {
       let { email, password } = req.body
       password = String(password)
-      console.log('password after conversion: ', password, typeof password)
 
       if (!UserValidation.validatePassword(password)) {
         throw new Error(' The password must contain more than 8 characters')
       }
 
       const result = await authService.register({ email, password })
-      console.log('Registration result:', result)
+      console.log('result en controller:', result)
 
       const tempToken = jwtService.generateTempToken(result._id)
-      console.log('Generate token: ', tempToken)
-
+      console.log('Temp Token:', tempToken)
       res
         .cookie('temp_registration', tempToken, {
           httpOnly: true,
@@ -43,9 +41,18 @@ export class AuthController {
   }
 
   static async registerUsername (req, res) {
+    console.log('Update username endpoint hit')
+    console.log('Request body:', req.body)
     try {
-      const { username } = req.body
+      console.log('Dentro del try: authController')
+
+      const { userId, username } = req.body
       const tempToken = req.cookies.temp_registration
+
+      console.log('TempToken', tempToken)
+      console.log('UserID: ', userId)
+
+      if (!username) throw new Error('Username is required')
 
       if (!tempToken) {
         return res.status(401).json({
@@ -58,6 +65,7 @@ export class AuthController {
 
       try {
         decoded = jwtService.verifyToken(tempToken)
+        console.log('decoded', decoded)
       } catch (err) {
         return res.status(401).json({
           success: false,
@@ -76,6 +84,8 @@ export class AuthController {
         userId: decoded.userId,
         username
       })
+
+      console.log('updateUser', updateUser)
 
       res
         .clearCookie('temp_registration', {

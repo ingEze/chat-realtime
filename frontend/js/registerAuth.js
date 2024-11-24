@@ -54,7 +54,8 @@ document.querySelector('#formContainer').addEventListener('submit', async (e) =>
     })
 
     if (response.ok) {
-      window.location.href('/lastInstanseRegister.html')
+      console.log('Redireccion lastInstanseRegister.html')
+      window.location.href = '/frontend/lastInstanseRegister.html'
     } else {
       const errorData = await response.json()
       console.error('Registration failed', errorData)
