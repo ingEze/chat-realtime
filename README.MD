@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Chat en Tiempo Real
 
 Este es un proyecto de **Chat en Tiempo Real** que permite a los usuarios registrarse, iniciar sesión con su correo electrónico o nombre de usuario, agregar amigos, buscar a los usuarios agregados y chatear en tiempo real.
