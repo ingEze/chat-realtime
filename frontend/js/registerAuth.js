@@ -1,3 +1,7 @@
+document.querySelector('#btnRedirectionLogIn').addEventListener('click', () => {
+  window.location.href = '/login.html'
+})
+
 document.querySelector('#formContainer').addEventListener('submit', async (e) => {
   e.preventDefault()
 
@@ -55,7 +59,7 @@ document.querySelector('#formContainer').addEventListener('submit', async (e) =>
 
     if (response.ok) {
       console.log('Redireccion lastInstanseRegister.html')
-      window.location.href = '/frontend/lastInstanseRegister.html'
+      window.location.href = '/lastInstanseRegister.html'
     } else {
       const errorData = await response.json()
       console.error('Registration failed', errorData)

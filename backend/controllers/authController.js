@@ -1,6 +1,7 @@
 import { authService } from '../services/authService.js'
-import { jwtService } from '../services/jwtService.js'
+import { JwtService } from '../services/JwtService.js'
 import { UserValidation } from '../utils/validation.js'
+
 export class AuthController {
   static async register (req, res) {
     console.log('Register endpoint hit')
@@ -15,10 +16,10 @@ export class AuthController {
       }
 
       const result = await authService.register({ email, password })
-      console.log('result en controller:', result)
+      console.log('result en controller registrer:', result)
 
-      const tempToken = jwtService.generateTempToken(result._id)
-      console.log('Temp Token:', tempToken)
+      const tempToken = JwtService.generateTempToken(result._id)
+      console.log('tempToken: authController.register:', tempToken)
       res
         .cookie('temp_registration', tempToken, {
           httpOnly: true,
@@ -29,7 +30,8 @@ export class AuthController {
         .status(201).json({
           success: true,
           message: 'User registered, redireccion to ingres username',
-          user: result
+          userId: result._id,
+          tempToken
         })
     } catch (err) {
       console.error('Registration error:', err.message)
@@ -43,13 +45,14 @@ export class AuthController {
   static async registerUsername (req, res) {
     console.log('Update username endpoint hit')
     console.log('Request body:', req.body)
+    console.log('Cookies:', req.cookies)
     try {
-      console.log('Dentro del try: authController')
+      console.log('Dentro del try: authController.registerUsername')
 
       const { userId, username } = req.body
       const tempToken = req.cookies.temp_registration
 
-      console.log('TempToken', tempToken)
+      console.log('tempToken.registerUsername: ', tempToken)
       console.log('UserID: ', userId)
 
       if (!username) throw new Error('Username is required')
@@ -64,7 +67,7 @@ export class AuthController {
       let decoded
 
       try {
-        decoded = jwtService.verifyToken(tempToken)
+        decoded = JwtService.verifyToken(tempToken)
         console.log('decoded', decoded)
       } catch (err) {
         return res.status(401).json({
@@ -112,10 +115,19 @@ export class AuthController {
 
   static async login (req, res) {
     try {
-      const { username, email, password } = req.body
-      const result = await authService.login({ username, email, password })
+      const { credentials, password } = req.body
 
-      const sessionToken = jwtService.generateToken(result._id)
+      const loginField = credentials.includes('@')
+        ? { email: credentials }
+        : { username: credentials }
+
+      const result = await authService.login({
+        ...loginField,
+        password
+      })
+
+      const sessionToken = JwtService.generateSessionToken(result._id)
+      console.log(sessionToken)
 
       res
         .cookie('session', sessionToken, {

@@ -1,4 +1,5 @@
 import express from 'express'
+import cookieParser from 'cookie-parser'
 
 import { userRouter } from './routes/authRoutes.js'
 import { PORT } from '../config/config.js'
@@ -6,6 +7,7 @@ import { connectDB } from './utils/db.js'
 import { corsMiddleware } from '../config/cors.js'
 
 const app = express()
+app.use(cookieParser())
 
 app.use(express.json())
 app.use(corsMiddleware)

@@ -13,7 +13,7 @@ export const authService = {
     if (existingUser) throw new Error('The user already existed')
 
     const passwordString = String(password)
-    if (typeof passwordString !== 'string') throw new Error('Password must be a string (authService) ')
+    if (typeof passwordString !== 'string') throw new Error('Password must be a string')
 
     const saltRounds = parseInt(SALT_ROUNDS, 10)
     const salt = await bcrypt.genSalt(saltRounds)
@@ -22,7 +22,8 @@ export const authService = {
 
     const tempUser = new User({
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      username: null
     })
 
     await tempUser.save()
@@ -39,7 +40,6 @@ export const authService = {
     } catch (err) {
       throw new Error('Invalid credentials')
     }
-
     const existingUsername = await User.findOne({ username })
     if (existingUsername) throw new Error('Username already existing')
 
@@ -61,9 +61,11 @@ export const authService = {
     const user = await User.findOne({
       $or: [{ username }, { email }]
     })
+    console.log('login.authService: ', user)
     if (!user) throw new Error('Invalid credentials')
 
     const isMatch = await bcrypt.compare(password, user.password)
+    console.log('userServive.login: ', isMatch)
     if (!isMatch) throw new Error('Invalid credentials')
 
     const userResponse = user.toObject()

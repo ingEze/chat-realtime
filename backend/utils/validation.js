@@ -1,10 +1,28 @@
+import { User } from '../models/sessionModel.js'
+
 export class UserValidation {
   static validateUsername (username) {
+    if (username === null) return true
+
+    // Validaciones cuando username no es null
+    if (!username) throw new Error('El username no puede estar vacío')
+    if (username.length < 3) throw new Error('El username debe tener al menos 3 caracteres')
+    if (username.length > 20) throw new Error('El username no puede tener más de 20 caracteres')
+
     const usernameRegex = /^[a-zA-Z0-9@/_-]+$/
-    if (username.length <= 3) throw new Error('Username most be 3 characters long')
-    if (username.length > 20) throw new Error('Username maximum length is 20 characters')
-    if (!usernameRegex.test(username)) throw new Error('Username can only contain letters, numbers, and symbols @, /, _, -')
-    if (!username) throw new Error('Username required')
+    if (!usernameRegex.test(username)) {
+      throw new Error('El username solo puede contener letras, números y los símbolos @, /, _, -')
+    }
+
+    return true
+  }
+
+  static async isUsernameUnique (username) {
+    if (username === null) return true
+
+    const existingUser = await User.findOne({ username })
+    if (existingUser) throw new Error('El username ya está en uso')
+    return true
   }
 
   static validateEmail (email) {

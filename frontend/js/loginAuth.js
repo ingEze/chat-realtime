@@ -1,62 +1,59 @@
+document.querySelector('#btnRedirectionSignUp').addEventListener('click', () => {
+  window.location.href = '/register.html'
+})
+
 document.querySelector('#formContainer').addEventListener('submit', async (e) => {
   e.preventDefault()
 
-  const userEmail = document.querySelector('#userEmail').value
-  const userPassword = document.querySelector('#userPassword').value
-  const confirmPassword = document.querySelector('#confirmPassword').value
-  const passwordErrorMatch = document.querySelector('.password-error-match')
-  const emailError = document.querySelector('.email-error')
-  const emptyFieldError = document.querySelector('.empty-field-error')
+  const userCredentialInput = document.querySelector('#userCredential')
+  const userPasswordInput = document.querySelector('#userPassword')
+  const emailErrorElement = document.querySelector('.email-error')
+  const passwordErrorElement = document.querySelector('.password-error')
 
-  passwordErrorMatch.classList.remove('active')
-  emailError.classList.remove('active')
-  if (emptyFieldError) emptyFieldError.classList.remove('active')
+  emailErrorElement.classList.remove('active')
+  passwordErrorElement.classList.remove('active')
 
-  if (!userEmail || !userPassword || !confirmPassword) {
-    if (!emptyFieldError) {
-      const formGroup = document.querySelector('.button-box')
-      const newError = document.createElement('p')
-      newError.classList.add('error-auth', 'empty-field-error')
-      newError.textContent = 'All fields are required'
-      formGroup.appendChild(newError)
+  let isValid = true
+
+  if (!userCredentialInput.value.trim()) {
+    emailErrorElement.classList.add('active')
+    isValid = false
+  }
+
+  if (!userPasswordInput.value.trim()) {
+    passwordErrorElement.classList.add('active')
+    isValid = false
+  } else if (userPasswordInput.value.length < 8) {
+    passwordErrorElement.textContent = 'Password must be at least 8 characters'
+    passwordErrorElement.classList.add('active')
+    isValid = false
+  }
+
+  if (isValid) {
+    const formData = {
+      credentials: userCredentialInput.value.trim(),
+      password: userPasswordInput.value
     }
-    return
-  }
 
-  if (userPassword !== confirmPassword) {
-    passwordErrorMatch.classList.add('active')
-    return
-  }
+    try {
+      const response = await fetch('http://localhost:3000/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData)
+      })
 
-  const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
-  if (!emailPattern.test(userEmail)) {
-    emailError.classList.add('active')
-    return
-  }
-
-  const formData = {
-    email: userEmail,
-    password: userPassword
-  }
-
-  try {
-    const response = await fetch('http://localhost:3000/api/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify(formData)
-    })
-
-    if (response.ok) {
-      console.log('registrarion successful')
-      window.location.href('../lastInstanseRegister.html')
-    } else {
-      const errorData = await response.json()
-      console.error('Registration failed', errorData)
+      if (response.ok) {
+        console.log('Login success')
+        window.location.href = '/index.html'
+      } else {
+        const errorData = await response.json()
+        console.error('Registration failed', errorData)
+      }
+    } catch (err) {
+      console.error('Error: ', err)
     }
-  } catch (err) {
-    console.error('Error: ', err)
   }
 })
