@@ -82,4 +82,3 @@ Add another user.
 Start chatting.
 The application has very limited features; you can only add users, change their profile picture, username, and chat.
 It is a small-scale project, aimed at learning and improving.
->>>>>>> 48b0b8203183789199cab7330fa8974f93575e60
