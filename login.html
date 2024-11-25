@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> FlopiChat | LOG IN</title>
+    <link rel="shortcut icon" href="./image/favicon/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+    
+    <div class="container">
+        <header class="header">
+            <h1 class="title">LOG IN</h1>
+        </header>
+
+        <form id="formContainer">
+                <div class="form-group">
+                    <label for="userEmail" class="form-label">Email or Username</label>
+                    <input type="text" name="info-user" class="form-input" id="userCredential" placeholder="Flopi123" required>
+                    <p class="error-auth email-error">Username or Email required</p>
+                </div> 
+                
+                <div class="form-group">
+                    <label for="userPassword" class="form-label">Password</label>
+                    <input type="password" name="password" class="form-input" id="userPassword" placeholder="●●●●●●●●" required>
+                    <p class="error-auth password-error">Password is required</p>
+                </div> 
+
+                <div class="button-box">
+                    <button type="submit" class="btn">Submit</button>   
+                </div>
+        </form>
+        <div class="return-box">
+            <button type="button" id="btnRedirectionSignUp" class="btn-return">Sign Up</button>
+        </div>
+    </div>
+    <script src="js/loginAuth.js"></script>
+</body>
+</html>
