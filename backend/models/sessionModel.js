@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import mongoose from 'mongoose'
 import { UserValidation } from '../utils/validation.js'
 
@@ -36,29 +35,3 @@ const userSchema = new mongoose.Schema({
 })
 
 export const User = mongoose.model('User', userSchema)
-=======
-import mongoose from 'mongoose'
-
-const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-})
-
-export const User = mongoose.model('User', userSchema)
->>>>>>> 48b0b8203183789199cab7330fa8974f93575e60

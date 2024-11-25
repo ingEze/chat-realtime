@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import express from 'express'
 import cookieParser from 'cookie-parser'
 
@@ -25,22 +24,3 @@ try {
   console.error('Failed to start server:', err)
   process.exit(1)
 }
-=======
-import express from 'express'
-import cors from 'cors'
-
-import { userRouter } from './routes/authRoutes.js'
-import { PORT } from '../config/config.js'
-import { connectDB } from './utils/db.js'
-
-const app = express()
-
-app.use(cors())
-app.use(express.json())
-
-connectDB()
-
-app.use('/api/auth', userRouter)
-
-app.listen(PORT, () => console.log(`server listening on port ${PORT}!`))
->>>>>>> 48b0b8203183789199cab7330fa8974f93575e60
