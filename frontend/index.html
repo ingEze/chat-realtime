@@ -11,96 +11,73 @@
 </head>
 <body>
     
-    <div class="container">
-        <header class="header">
-            <div class="title">
+    <body>
+        <div class="container">
+            <header class="header">
                 <h1>FlopiChat</h1>
-            </div>
-            <div class="add-user-container">
-                <i class="fa fa-plus" aria-hidden="true"></i>
-            </div>
+                <div class="add-user-container">
+                    <i class="fas fa-user-plus icon-toggle" id="addUserButton"></i>
+                </div>
+            </header>
+    <!-- ---------------------------------------------- -->
+            <div class="add-user-float" id="addUserFloat">
+                <div class="add-new-user-search">
+                    <input type="search" id="addNewUser" placeholder="Buscar usuario">
+                    <i class="fas fa-search iconToggle"></i>
+                </div>
 
-            <div class="add-user-float">
-                <div class="add-new-user">
-
-                    <div class="add-new-user-search">
-                        <input type="text" name="add-user" id="addNewUser" placeholder="Add new user..." autocomplete="off">
-                        <i class="fa fa-search" aria-hidden="true"></i>
-                    </div>
-
-                    <div class="add-new-user-box">
-
-                        <div class="new-user">
-                            <div class="data-user">
-                                <img src="image/profile1.jpg" alt="">
-                                <p class="username">NewUser0000000000000000000000000000000000000000000000000000</p>
-                            </div>
-                            <i class="fa fa-plus"></i>
+                <div class="add-user-search-box">
+                    <!-- <div class="new-user">
+                        <div class="data-user">
+                            <img src="image/profile1.jpg" alt="${user.username}">
+                            <span class="username"></span>
                         </div>
-
-                        <div class="new-user">
-                            <div class="data-user">
-                                <img src="image/profile2.jpeg" alt="">
-                                <p class="username">newUser2</p>
-                            </div>
-                            <i class="fa fa-plus"></i>
-                        </div>
-
-                    </div>
-
+                        <i class="fas fa-plus-circle"></i>
+                    </div> -->
                 </div>
             </div>
-        </header>
-
-        <section class="existing-user-search">
-            <i class="fa fa-search" aria-hidden="true"></i>
-            <input type="search" class="search-input" id="existingUserSearch" placeholder="Search contact...">
-        </section>
-
-        <main class="container-main">
-            <ul class="chats-container">
-
-                <li class="chat">
-                    <div class="dates-user">
+    <!-- -------------------------------------------------------- -->
+            <div class="existing-user-search">
+                <i class="fas fa-search"></i>
+                <input type="search" class="search-input" placeholder="Buscar conversaciones...">
+            </div>
+    
+            <main class="container-main">
+                <div class="chats-container">
+                    <div class="data-user">
                         <div class="chat-left">
                             <div class="container-photo">
-                                <img class="user-photo" src="image/profile1.jpg" alt="perfil"></div>
-                                <span class="chat-username">User1</span>
+                                <img src="image/profile1.jpg" class="user-photo" alt="User Profile">
+                            </div>
+                            <span class="chat-username">User1</span>
                         </div>
-                        <div class="message-date">
-                            <span>10:45pm</span>
-                        </div>
+                        <span class="message-date">10:45pm</span>
                     </div>
-                        <div class="chat-content">
-                            <span class="last-message">This is the last message...</span>
-                            <span class="new-message-indicator"><i class="fas fa-exclamation"></i></span>
+                    <div class="chat-content">
+                        <span class="last-message">This is the last message...</span>
+                        <span class="new-message-indicator">•</span>
                     </div>
-                </li>
-
-                <li class="chat">
-                    <div class="dates-user">
+    
+                    <div class="data-user">
                         <div class="chat-left">
-                            <div class="container-photo"><img class="user-photo" src="image/profile2.jpeg" alt="perfil"></div>
+                            <div class="container-photo">
+                                <img src="image/profile2.jpeg" class="user-photo" alt="User Profile">
+                            </div>
                             <span class="chat-username">User2</span>
                         </div>
-                        <div class="message-date">
-                            <span>10:45pm</span>
-                        </div>
+                        <span class="message-date">10:45pm</span>
                     </div>
-                        <div class="chat-content">
-                            <span class="last-message">This is another message...</span>
-                        </div>
-                </li>
-
-            </ul>
-        </main>
-
-    </div>
-
-    <div class="logout-box">
-        <button type="button" id="logout">Logout</button>
-    </div>
-
-    <script src="js/index.js"></script>
+                    <div class="chat-content">
+                        <span class="last-message">This is another message...</span>
+                    </div>
+                </div>
+            </main>
+    
+        </div>
+        <div class="logout-box">
+            <button type="button" id="logout">Logout</button>
+        </div>
+    
+    <script src="js/main.js"></script>
 </body>
 </html> 

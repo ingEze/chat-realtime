@@ -61,11 +61,9 @@ export const authService = {
     const user = await User.findOne({
       $or: [{ username }, { email }]
     })
-    console.log('login.authService: ', user)
     if (!user) throw new Error('Invalid credentials')
 
     const isMatch = await bcrypt.compare(password, user.password)
-    console.log('userServive.login: ', isMatch)
     if (!isMatch) throw new Error('Invalid credentials')
 
     const userResponse = user.toObject()

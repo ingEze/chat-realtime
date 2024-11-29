@@ -127,7 +127,6 @@ export class AuthController {
       })
 
       const sessionToken = JwtService.generateSessionToken(result._id)
-      console.log(sessionToken)
 
       res
         .cookie('session', sessionToken, {
