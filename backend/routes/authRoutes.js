@@ -17,6 +17,8 @@ userRouter.get('/protected', authSession, SessionController.authorized)
 userRouter.get('/search', authSession, Search.searchUsers)
 userRouter.post('/logout', SessionController.logout)
 
-userRouter.post('/add', authSession, FriendAdd.sendFriendRequest)
-userRouter.post('/accepted', authSession, FriendAdd.acceptedFriendRequest)
-userRouter.get('/requests', authSession, FriendAdd.getPendingFriendRequests)
+userRouter.post('/friends/add', authSession, FriendAdd.sendFriendRequest)
+userRouter.post('/friends/accepted', authSession, FriendAdd.acceptedFriendRequest)
+userRouter.get('/friends/requests', authSession, FriendAdd.getPendingFriendRequests)
+
+userRouter.get('/usertag', authSession, Search.userTag)

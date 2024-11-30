@@ -175,7 +175,7 @@ async function loadFriendRequests () {
 
 function renderFriendRequests (requests) {
   const requestContainer = document.getElementById('friend-requests')
-  requestContainer.innerHTML = '' // Limpiar contenedor
+  requestContainer.innerHTML = ''
 
   requests.forEach(request => {
     const requestElement = document.createElement('div')
@@ -187,3 +187,24 @@ function renderFriendRequests (requests) {
     requestContainer.appendChild(requestElement)
   })
 }
+
+document.addEventListener('DOMContentLoaded', async (username) => {
+  const userTag = document.querySelector('#userTag')
+
+  try {
+    const response = await fetch('/api/usertag', {
+      method: 'GET',
+      credentials: 'include'
+    })
+
+    if (response.ok) {
+      const username = await response.text()
+      userTag.textContent = username
+    } else {
+      console.error('Error al recuperar username')
+      userTag.textContent = 'Invited'
+    }
+  } catch (err) {
+    console.error('Error al obtener el username:', err)
+  }
+})

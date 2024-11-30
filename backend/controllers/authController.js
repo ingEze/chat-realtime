@@ -16,10 +16,8 @@ export class AuthController {
       }
 
       const result = await authService.register({ email, password })
-      console.log('result en controller registrer:', result)
 
       const tempToken = JwtService.generateTempToken(result._id)
-      console.log('tempToken: authController.register:', tempToken)
       res
         .cookie('temp_registration', tempToken, {
           httpOnly: true,

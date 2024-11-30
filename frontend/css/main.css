@@ -16,6 +16,19 @@ input[type="search"]::-webkit-search-cancel-button {
     cursor: pointer;
 }
 
+#userTag {
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+    padding: .5rem;
+    padding-bottom: 0.1rem;
+    border-bottom: 1px solid rgba(75, 196, 75, 0.925);
+    border-radius: 5px;
+    font-size: clamp(1em, 1rem + 0.45vw, 1.3rem);
+    color: #f1f1f1;
+    cursor: pointer;
+}   
+
 .container {
     display: flex; 
     flex-direction: column;
@@ -317,7 +330,7 @@ input[type="search"]::-webkit-search-cancel-button {
 
 /* CONTAINER QUERYS */
 
-@container (min-width: 768px) {
+@container (min-width: 1276px) {
     .add-user-float {
         position: absolute;
         right: -250px;
