@@ -45,7 +45,7 @@ document.querySelector('#formContainer').addEventListener('submit', async (e) =>
 
   try {
     console.log('Making fetch request...')
-    const response = await fetch('http://localhost:3000/api/register', {
+    const response = await fetch('/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

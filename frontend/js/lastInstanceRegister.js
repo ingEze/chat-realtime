@@ -28,7 +28,7 @@ document.querySelector('#formUsername').addEventListener('submit', async (e) => 
   }
 
   try {
-    const response = await fetch('http://localhost:3000/api/register-username', {
+    const response = await fetch('/auth/register-username', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

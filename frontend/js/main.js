@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const response = await fetch('/api/protected', {
+    const response = await fetch('/auth/protected', {
       method: 'GET',
       credentials: 'include'
     })
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
+      const response = await fetch(`/friends/search?q=${encodeURIComponent(query)}`, {
         method: 'GET',
         credentials: 'include'
       })
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.querySelector('#logout').addEventListener('click', async () => {
   try {
-    const response = await fetch('/api/logout', {
+    const response = await fetch('/auth/logout', {
       method: 'POST',
       credentials: 'include'
     })
@@ -131,7 +131,7 @@ document.querySelector('#logout').addEventListener('click', async () => {
 // Modificación del main.js
 async function addFriend (username) {
   try {
-    const response = await fetch('/api/friends/add', {
+    const response = await fetch('/friends/add', {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -156,7 +156,7 @@ async function addFriend (username) {
 // Función para cargar solicitudes pendientes
 async function loadFriendRequests () {
   try {
-    const response = await fetch('/api/friends/requests', {
+    const response = await fetch('/friends/requests', {
       method: 'GET',
       credentials: 'include'
     })
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', async (username) => {
   const userTag = document.querySelector('#userTag')
 
   try {
-    const response = await fetch('/api/usertag', {
+    const response = await fetch('/setting/usertag', {
       method: 'GET',
       credentials: 'include'
     })
@@ -207,4 +207,8 @@ document.addEventListener('DOMContentLoaded', async (username) => {
   } catch (err) {
     console.error('Error al obtener el username:', err)
   }
+})
+
+document.querySelector('#userTag').addEventListener('click', () => {
+  window.location.href = '/settingAccount.html'
 })

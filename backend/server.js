@@ -1,10 +1,13 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
 
-import { userRouter } from './routes/authRoutes.js'
 import { PORT } from '../config/config.js'
 import { connectDB } from './utils/db.js'
 import { corsMiddleware } from '../config/cors.js'
+
+import authRouter from './routes/authRoutes.js'
+import friendRouter from './routes/friendRoutes.js'
+import settingRouter from './routes/settingRoutes.js'
 
 const app = express()
 app.use(cookieParser())
@@ -13,7 +16,9 @@ app.use(express.json())
 app.use(corsMiddleware)
 app.use(express.static('frontend'))
 
-app.use('/api', userRouter)
+app.use('/auth', authRouter)
+app.use('/friends', friendRouter)
+app.use('/setting', settingRouter)
 
 try {
   await connectDB()

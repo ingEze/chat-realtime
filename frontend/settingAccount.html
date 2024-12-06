@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile setting</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/settingAccount.css">
+    <link rel="shortcut icon" href="image/favicon/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    
+    <div class="container">
+
+        <section class="container-setting">
+            <ul class="setting-ul">
+                <li class="setting-li select" id="changeUsername">Change username</li>
+                <li class="setting-li" id="changeEmail">Change Email</li>
+                <li class="setting-li" id="changePassword">Change password</li>
+                <li class="setting-li" id="changePhoto">Change photo</li>
+                <li class="setting-li" id="aboutUs">About us</li>
+                <li class="setting-li red" id="deleteAccount">Delete account</li>
+            </ul>
+        </section>
+
+        <section class="container-setting-content">
+            <div class="content-box">
+                <h3 class="content-title">Change username</h3>
+
+                <form class="content" id="form">
+                    <div class="form-group">
+                        <label for="newUsername" class="content-label">New username</label>
+                        <input type="text" name="newUsername" id="newUsername" class="form-input" placeholder="noflopi12" required autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="content-label">Password</label>
+                        <input type="password" name="Password" id="password" class="form-input" placeholder="*********" required autocomplete="off">
+                    </div>
+
+
+                    <div class="button-box">
+                        <button type="submit" id="btnSubmit">Submit</button>
+                    </div>
+                </form>
+
+            </div>
+        </section>
+
+    </div>
+    <script src="js/settingAccount.js"></script>
+</body>
+</html>

@@ -36,7 +36,7 @@ document.querySelector('#formContainer').addEventListener('submit', async (e) =>
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/login', {
+      const response = await fetch('/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
