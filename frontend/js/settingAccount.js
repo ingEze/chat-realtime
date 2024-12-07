@@ -1,4 +1,6 @@
-document.addEventListener('submit', async (e) => {
+const form = document.querySelector('#form')
+
+form.addEventListener('submit', async (e) => {
   e.preventDefault()
   const newUsername = document.querySelector('#newUsername').value
   const password = document.querySelector('#password').value
@@ -25,6 +27,17 @@ document.addEventListener('submit', async (e) => {
     } else {
       console.error('Error al actualizar nombre de usuario')
     }
+
+    try {
+      const response = await fetch('/setting/password-error', {
+        method: 'GET',
+        body: JSON.stringify({ password })
+      })
+
+      if (!response.ok) {
+        console.error('password invalid')
+      }
+    } catch (err) {}
   } catch (err) {
     console.error('Error al cambiar el username:', err)
   }

@@ -6,7 +6,11 @@ export class SettingController {
       const { newUsername, password } = req.body
       const userId = req.user._id
 
-      const user = await SettingService.updateUsername({ userId, password, newUsername })
+      const user = await SettingService.updateUsername({
+        userId,
+        password,
+        newUsername
+      })
 
       res.status(200).json({
         success: true,

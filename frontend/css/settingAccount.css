@@ -109,3 +109,14 @@
 .button-box button:hover {
     background: #2e6930;
 }
+
+/* password err */
+
+.password-error {
+  display: none;
+  color: rgb(250, 63, 63);
+  font-weight: 500;
+  letter-spacing: 1px;
+  font-size: .8rem;
+  margin-top: 7px;
+}

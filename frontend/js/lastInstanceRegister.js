@@ -23,10 +23,6 @@ document.querySelector('#formUsername').addEventListener('submit', async (e) => 
     usernameError('is not valid')
   }
 
-  const dataUser = {
-    username
-  }
-
   try {
     const response = await fetch('/auth/register-username', {
       method: 'POST',
@@ -34,7 +30,7 @@ document.querySelector('#formUsername').addEventListener('submit', async (e) => 
         'Content-Type': 'application/json'
       },
       credentials: 'include',
-      body: JSON.stringify(dataUser)
+      body: JSON.stringify(username)
     })
 
     if (response.ok) {
