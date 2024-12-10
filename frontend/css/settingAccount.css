@@ -36,15 +36,24 @@
   background-color: #c1c1c1;
 }
 
-.setting-li.red:hover {
-  background: rgba(255, 17, 17, 0.425);
+#deleteAccount {
+  background: rgba(255, 3, 3, 0.5);
+}
+
+#deleteAccount.select {
+  background: rgba(255, 0, 0, 0.596);
+  color: #f5f5f5;
+}
+
+#deleteAccount:hover {
+  background: rgba(255, 17, 17, 0.829);
 }
 
 .setting-li::after {
-    position: absolute;
-    content: "";
-    left: 0;
-    background-color: #fff;
+  position: absolute;
+  content: "";
+  left: 0;
+  background-color: #fff;
 }
 
 .container-setting-content {
@@ -112,8 +121,7 @@
 
 /* password err */
 
-.password-error {
-  display: none;
+.error-credential {
   color: rgb(250, 63, 63);
   font-weight: 500;
   letter-spacing: 1px;

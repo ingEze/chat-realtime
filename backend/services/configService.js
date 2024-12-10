@@ -8,12 +8,15 @@ export class SettingService {
     if (!user) throw new Error('User not found')
 
     const passwordCompare = await bcrypt.compare(password, user.password)
-    console.log('after compare password:', passwordCompare)
-
-    if (!passwordCompare) throw new Error('Invalid credentials')
+    if (!passwordCompare) throw new Error('Password invalid')
 
     UserValidation.validateUsername(newUsername)
+
+    const existingUser = await User.findOne({ username: newUsername })
+    if (existingUser) throw new Error('Username already existed')
+
     user.username = newUsername
+
     await user.save()
 
     return user

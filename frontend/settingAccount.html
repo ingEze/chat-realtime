@@ -25,6 +25,7 @@
         </section>
 
         <section class="container-setting-content">
+
             <div class="content-box">
                 <h3 class="content-title">Change username</h3>
 
@@ -32,23 +33,21 @@
                     <div class="form-group">
                         <label for="newUsername" class="content-label">New username</label>
                         <input type="text" name="newUsername" id="newUsername" class="form-input" placeholder="noflopi12" required autocomplete="off">
+                        <span class="username-error error-credential"></span>
                     </div>
 
                     <div class="form-group">
                         <label for="password" class="content-label">Password</label>
                         <input type="password" name="Password" id="password" class="form-input" placeholder="*********" required autocomplete="off">
-                        <span class="password-error">
-                            <i class="fa fa-exclamation" aria-hidden="true"></i>
-                        </span>
+                        <span class="password-error error-credential"></span>
                     </div>
-
 
                     <div class="button-box">
                         <button type="submit" id="btnSubmit">Submit</button>
                     </div>
                 </form>
-
             </div>
+
         </section>
 
     </div>
