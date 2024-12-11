@@ -21,4 +21,23 @@ export class SettingService {
 
     return user
   }
+
+  static async updateEmail ({ userId, password, newEmail }) {
+    const user = await User.findById(userId)
+    if (!user) throw new Error('User not found')
+
+    const passwordCompare = await bcrypt.compare(password, user.password)
+    if (!passwordCompare) throw new Error('Password invalid')
+
+    UserValidation.validateEmail(newEmail)
+
+    const existingNewEmail = await User.findOne({ email: newEmail })
+    if (existingNewEmail) throw new Error('Email already existed')
+
+    user.email = newEmail
+
+    await user.save()
+
+    return user
+  }
 }

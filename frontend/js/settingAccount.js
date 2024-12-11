@@ -1,3 +1,20 @@
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const response = await fetch('/setting/change-email', {
+      method: 'GET',
+      credentials: 'include'
+    })
+
+    if (response.ok) {
+      console.error('No session token')
+      window.location.href = '/login.html'
+    }
+  } catch (err) {
+    console.error('Fatal error:', err)
+    window.location.href = '/login.html'
+  }
+})
+
 // funtion manipulation DOM
 const menuContainer = document.querySelector('.container-setting')
 const settingContent = document.querySelector('.container-setting-content')
@@ -24,7 +41,7 @@ function settingContentElement (config) {
       <div class="form-group">
         <label for="${idElement}" class="content-label">${firstLabel}</label>
         <input type="${firstInputType}" name="${firstInputName}" id="${idElement}" class="form-input" placeholder="${placeholder}" required autocomplete="off">
-        <span class="username-error error-credential"></span>
+        <span id='firstSpanError' class="error-credential"></span>
       </div>
       ${showPasswordField
   ? `
@@ -43,71 +60,11 @@ function settingContentElement (config) {
 
   settingContent.appendChild(contentBox)
 
-  const form = settingContent.querySelector('#form')
-  const passwordError = settingContent.querySelector('.password-error')
-  const usernameError = settingContent.querySelector('.username-error')
-
-  // Evento de submit dependiendo de la acción
+  const form = document.querySelector('#form')
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
-    const input = form.querySelector(`#${idElement}`).value
-    const password = form.querySelector('#password')?.value || ''
-
-    passwordError && (passwordError.textContent = '')
-    usernameError && (usernameError.textContent = '')
-
-    try {
-      let endpoint, method, bodyData
-
-      switch (idElement) {
-        case 'changeGmail':
-          endpoint = '/setting/change-email'
-          method = 'PATCH'
-          bodyData = { newEmail: input, password }
-          break
-        case 'newUsername':
-          endpoint = '/setting/change-username'
-          method = 'PATCH'
-          bodyData = { newUsername: input, password }
-          break
-        // Puedes agregar más casos para otras configuraciones
-        default:
-          throw new Error('Endpoint no configurado')
-      }
-
-      const response = await fetch(endpoint, {
-        method,
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(bodyData)
-      })
-
-      const result = await response.json()
-
-      if (response.ok) {
-        console.log(`${idElement} updated`)
-        window.location.href = '/index.html'
-      } else {
-        // Manejo de errores específicos
-        const errorMap = {
-          'Password invalid': passwordError,
-          'Username invalid': usernameError,
-          'Username already existed': usernameError,
-          'Email already exists': usernameError
-        }
-
-        const errorElement = errorMap[result.message]
-        if (errorElement) {
-          errorElement.textContent = result.message
-        } else {
-          console.error('Error:', result.message)
-        }
-      }
-    } catch (err) {
-      console.error(`Error al cambiar ${idElement}:`, err)
-    }
+    console.log('Form send')
+    await handleFormSubmit()
   })
 }
 
@@ -116,13 +73,11 @@ menuContainer.addEventListener('click', (e) => {
   const clickedItem = e.target.closest('[id]')
 
   if (clickedItem) {
-    // Remover selección de todos los elementos
     document.querySelectorAll('.container-setting [id]').forEach(item => {
       item.classList.remove('select')
     })
     clickedItem.classList.add('select')
 
-    // Configuraciones para cada opción
     const settingsConfig = {
       changeUsername: {
         title: 'Change Username',
@@ -134,7 +89,7 @@ menuContainer.addEventListener('click', (e) => {
       changeEmail: {
         title: 'Change Email',
         firstLabel: 'New Email',
-        idElement: 'changeGmail',
+        idElement: 'newEmail',
         placeholder: 'flopi@example.com'
       },
       changePassword: {
@@ -155,7 +110,6 @@ menuContainer.addEventListener('click', (e) => {
 })
 
 // clase select
-
 menuContainer.addEventListener('click', (e) => {
   const clickedItem = e.target.closest('[id]')
 
@@ -167,53 +121,158 @@ menuContainer.addEventListener('click', (e) => {
   clickedItem.classList.add('select')
 })
 
-const form = document.querySelector('#form')
 const passwordError = document.querySelector('.password-error')
-const usernameError = document.querySelector('.username-error')
+const firstSpanError = document.querySelector('#firstSpanError')
 
-// change username
-form.addEventListener('submit', async (e) => {
-  e.preventDefault()
-  const newUsername = document.querySelector('#newUsername').value
-  const password = document.querySelector('#password').value
+// informacion de errores
+
+function informationErrorInValidate (result) {
+  switch (result.message) {
+    case 'Password invalid':
+      passwordError.textContent = 'Password invalid'
+      break
+    case 'Username invalid':
+      firstSpanError.textContent = 'Username invalid'
+      break
+    case 'Username already existed':
+      firstSpanError.textContent = 'Username already existed'
+      break
+    case 'Email invalid':
+      firstSpanError.textContent = 'Email invalid'
+      break
+    case 'Email already existed':
+      firstSpanError.textContent = 'Email already existed'
+      break
+    case 'New password invalid':
+      firstSpanError.textContent = 'Password invalid'
+      break
+    default:
+      console.error('Error:', result.message)
+  }
+}
+
+async function handleFormSubmit () {
+  const newValue = document.querySelector('#form .form-input[required]').value
+  const password = document.querySelector('#password')?.value
+  const selectedOption = document.querySelector('.container-setting [id].select')
+
+  console.log('Selected option:', selectedOption.id)
+  console.log('Value entered:', newValue, 'password:', password)
 
   passwordError.textContent = ''
-  usernameError.textContent = ''
+  firstSpanError.textContent = ''
 
   try {
-    const response = await fetch('/setting/change-username', {
+    let endpoint = ''
+    let bodyData = {}
+    console.log('Endpoint:', endpoint, 'data sent:', bodyData)
+
+    switch (selectedOption.id) {
+      case 'changeUsername':
+        endpoint = '/setting/change-username'
+        bodyData = { newUsername: newValue, password }
+        break
+      case 'changeEmail':
+        endpoint = '/setting/change-email'
+        bodyData = { newEmail: newValue, password }
+        break
+      case 'changePassword':
+        endpoint = '/setting/change-password'
+        bodyData = { newPassword: newValue, password }
+        break
+      default:
+        throw new Error('No se seleccionó una opción válida')
+    }
+
+    const response = await fetch(endpoint, {
       method: 'PATCH',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        newUsername,
-        password
-      })
+      body: JSON.stringify(bodyData)
     })
 
     const result = await response.json()
 
     if (response.ok) {
-      console.log('Username updated')
-      window.location.href = '/index.html'
-    } else {
-      switch (result.message) {
-        case 'Password invalid':
-          passwordError.textContent = 'Password invalid'
-          break
-        case 'Username invalid':
-          usernameError.textContent = 'Username invalid'
-          break
-        case 'Username already existed':
-          usernameError.textContent = 'Username already existed'
-          break
-        default:
-          console.error('Error:', result.message)
+      if (result.redirectUrl) {
+        window.location.replace(result.redirectUrl)
+      } else {
+        window.location.href = '/index.html'
       }
+    } else {
+      console.error('Response error:', response)
+      informationErrorInValidate(result)
     }
   } catch (err) {
-    console.error('Error al cambiar el username:', err)
+    console.error('Error al actualizar:', err)
   }
-})
+}
+
+// change username
+// form.addEventListener('submit', async (e) => {
+//   e.preventDefault()
+//   const newValue = document.querySelector('#form .form-input[required]').value
+//   const password = document.querySelector('#password').value
+
+//   const selectedOption = document.querySelector('.container-setting [id].select')
+
+//   passwordError.textContent = ''
+//   firstSpanError.textContent = ''
+
+//   try {
+//     let endpoint = ''
+//     let bodyData = {}
+
+//     switch (selectedOption.id) {
+//       case 'changeUsername':
+//         endpoint = '/setting/change-username'
+//         bodyData = { newUsername: newValue, password }
+//         break
+//       case 'changeEmail':
+//         endpoint = '/setting/change-email'
+//         bodyData = { newEmail: newValue, password }
+//         break
+//       case 'changePassword':
+//         endpoint = '/setting/change-password'
+//         bodyData = { newPassword: newValue, password }
+//         break
+//       default:
+//         throw new Error('No se seleccionó una opción válida')
+//     }
+
+//     console.log('Endpoint:', endpoint)
+//     console.log('Body Data:', bodyData)
+
+//     const response = await fetch(endpoint, {
+//       method: 'PATCH',
+//       credentials: 'include',
+//       headers: {
+//         'Content-Type': 'application/json'
+//       },
+//       body: JSON.stringify(bodyData)
+//     })
+
+//     console.log('Response status:', response.status)
+//     console.log('Response ok:', response.ok)
+
+//     const result = await response.json()
+//     console.log('result:', result)
+
+//     if (response.ok) {
+//       console.log('redirecting...')
+//       if (result.redirectUrl) {
+//         console.log('redirect url:', result.redirectUrl)
+//         window.location.replace(result.redirectUrl)
+//       } else {
+//         window.location.href = '/index.html'
+//       }
+//     } else {
+//       console.log('error handling:', result)
+//       informationErrorInValidate(result)
+//     }
+//   } catch (err) {
+//     console.error('Error al actualizar:', err)
+//   }
+// })
