@@ -14,10 +14,6 @@ document.querySelector('#formUsername').addEventListener('submit', async (e) => 
     formGroup.appendChild(message)
   }
 
-  // username already used
-  // username is not valid
-  // username most be 3 characters
-
   const username = document.querySelector('#inputUsername').value
   if (username === '') {
     usernameError('is not valid')
@@ -30,7 +26,7 @@ document.querySelector('#formUsername').addEventListener('submit', async (e) => 
         'Content-Type': 'application/json'
       },
       credentials: 'include',
-      body: JSON.stringify(username)
+      body: JSON.stringify({ username })
     })
 
     if (response.ok) {

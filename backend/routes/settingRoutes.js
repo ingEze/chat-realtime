@@ -8,6 +8,7 @@ const settingRouter = Router()
 
 settingRouter.patch('/change-username', authSession, SettingController.updateUsername)
 settingRouter.patch('/change-email', authSession, SettingController.updateEmail)
+settingRouter.patch('/change-password', authSession, SettingController.updatePassword)
 
 settingRouter.get('/usertag', authSession, Search.userTag)
 

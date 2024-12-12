@@ -31,10 +31,13 @@ export class UserValidation {
   }
 
   static validatePassword (password) {
+    if (!password) throw new Error('Password is required')
     if (typeof password !== 'string') {
       console.error('password validation failed: not a string', password)
       throw new Error('Password must be a string')
     }
-    return password.length >= 8
+    if (password.length < 8) throw new Error('Password must be at least 9 characters long')
+
+    return true
   }
 }

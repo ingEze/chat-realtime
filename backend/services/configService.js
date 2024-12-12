@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import { User } from '../models/sessionModel.js'
 import { UserValidation } from '../utils/validation.js'
-
+import { SALT_ROUNDS } from '../../config/config.js'
 export class SettingService {
   static async updateUsername ({ userId, password, newUsername }) {
     const user = await User.findById(userId)
@@ -13,7 +13,9 @@ export class SettingService {
     UserValidation.validateUsername(newUsername)
 
     const existingUser = await User.findOne({ username: newUsername })
-    if (existingUser) throw new Error('Username already existed')
+    if (existingUser) {
+      throw new Error('Username already existed')
+    }
 
     user.username = newUsername
 
@@ -39,5 +41,39 @@ export class SettingService {
     await user.save()
 
     return user
+  }
+
+  static async updatePassword ({ userId, password, newPassword }) {
+    try {
+      console.log('Data recived:', { userId, newPassword, password })
+
+      const user = await User.findById(userId)
+      if (!user) {
+        console.error('User not found')
+        throw new Error('User not found')
+      }
+      const passwordCompare = await bcrypt.compare(password, user.password)
+      if (!passwordCompare) {
+        console.error('Password invalid')
+        throw new Error('Password invalid')
+      }
+
+      try {
+        UserValidation.validatePassword(newPassword)
+      } catch (err) {
+        console.error('Nueva contraseña invalida:', err)
+        throw new Error('New password invalid')
+      }
+
+      const newPasswordHashed = await bcrypt.hash(newPassword, SALT_ROUNDS)
+      user.password = newPasswordHashed
+
+      await user.save()
+
+      return user
+    } catch (err) {
+      console.error('Error completo en updatePassword:', err)
+      throw err
+    }
   }
 }

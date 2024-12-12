@@ -128,3 +128,13 @@
   font-size: .8rem;
   margin-top: 7px;
 }
+
+.redirect-box {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+}
+
+#redirectHome {
+  padding-inline: .5rem;
+}

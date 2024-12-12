@@ -10,8 +10,15 @@
     <link rel="shortcut icon" href="image/favicon/favicon.ico" type="image/x-icon">
 </head>
 <body>
+    <div class="button-box redirect-box">
+        <button type="button" id="redirectHome">
+            <i class="fa fa-home" aria-hidden="true"></i>
+            Home
+        </button>
+    </div>
     
     <div class="container">
+
 
         <section class="container-setting">
             <ul class="setting-ul">
@@ -25,29 +32,6 @@
         </section>
 
         <section class="container-setting-content">
-
-            <div class="content-box">
-                <h3 class="content-title">Change username</h3>
-
-                <form class="content" id="form">
-                    <div class="form-group">
-                        <label for="newUsername" class="content-label">New username</label>
-                        <input type="text" name="newUsername" id="newUsername" class="form-input" placeholder="noflopi12" required autocomplete="off">
-                        <span id="firstSpanError" class="error-credential"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password" class="content-label">Password</label>
-                        <input type="password" name="Password" id="password" class="form-input" placeholder="*********" required autocomplete="off">
-                        <span class="password-error error-credential"></span>
-                    </div>
-
-                    <div class="button-box">
-                        <button type="submit" id="btnSubmit">Submit</button>
-                    </div>
-                </form>
-            </div>
-
         </section>
 
     </div>
