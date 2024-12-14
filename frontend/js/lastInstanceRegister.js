@@ -14,6 +14,7 @@ document.querySelector('#formUsername').addEventListener('submit', async (e) => 
     formGroup.appendChild(message)
   }
 
+  const profileImage = document.querySelector('.profile-image')
   const username = document.querySelector('#inputUsername').value
   if (username === '') {
     usernameError('is not valid')
@@ -26,8 +27,18 @@ document.querySelector('#formUsername').addEventListener('submit', async (e) => 
         'Content-Type': 'application/json'
       },
       credentials: 'include',
-      body: JSON.stringify({ username })
+      body: JSON.stringify({ username, profileImage })
     })
+
+    const data = await response.json()
+
+    if (data.profileImage) {
+      const imgElement = document.createElement('img')
+      imgElement.src = data.profileImage + '?raw=1'
+      imgElement.alt = 'Imagen de perfil'
+
+      document.querySelector('#profileImage').appendChild(imgElement)
+    }
 
     if (response.ok) {
       console.log('registrarion successful')

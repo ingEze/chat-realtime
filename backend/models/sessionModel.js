@@ -2,6 +2,10 @@ import mongoose from 'mongoose'
 import { UserValidation } from '../utils/validation.js'
 
 const userSchema = new mongoose.Schema({
+  profilePhoto: {
+    type: String,
+    default: null
+  },
   username: {
     type: String,
     required: false,
@@ -12,7 +16,7 @@ const userSchema = new mongoose.Schema({
       validator: function (username) {
         return UserValidation.validateUsername(username)
       },
-      message: props => `${props.value} no es un usernmae valid`
+      message: props => `${props.value} username not valid`
     }
   },
   email: {

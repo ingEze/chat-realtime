@@ -12,4 +12,6 @@ settingRouter.patch('/change-password', authSession, SettingController.updatePas
 
 settingRouter.get('/usertag', authSession, Search.userTag)
 
+settingRouter.delete('/delete-account', authSession, SettingController.deleteAccount)
+
 export default settingRouter

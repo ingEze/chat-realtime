@@ -72,8 +72,23 @@ export class SettingService {
 
       return user
     } catch (err) {
-      console.error('Error completo en updatePassword:', err)
-      throw err
+      throw new Error('Update password error', err)
+    }
+  }
+
+  static async deleteAccount ({ userId, password }) {
+    try {
+      const user = await User.findById(userId)
+      if (!user) throw new Error('User not found')
+
+      const comparePassword = await bcrypt.compare(password, user.password)
+      if (!comparePassword) throw new Error('Password invalid')
+
+      await user.deleteOne()
+      return { message: 'Account successfully deleted' }
+    } catch (err) {
+      console.error('Error completo en configService:')
+      throw new Error(err.message || 'Error delete account')
     }
   }
 }

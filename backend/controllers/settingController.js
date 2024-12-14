@@ -1,4 +1,4 @@
-import { SettingService } from '../services/configService.js'
+import { SettingService } from '../services/settingService.js'
 export class SettingController {
   static async updateUsername (req, res) {
     try {
@@ -141,6 +141,49 @@ export class SettingController {
         success: false,
         message: errorMessage
       })
+    }
+  }
+
+  static async deleteAccount (req, res) {
+    console.log('req.body:', req.body)
+    try {
+      const { password } = req.body
+
+      if (!req.user) {
+        res.status(401).json({
+          success: false,
+          message: 'User not authorized'
+        })
+      }
+
+      const userId = req.user._id
+
+      const userDelete = await SettingService.deleteAccount({ userId, password })
+
+      res.status(200).json({
+        success: true,
+        message: 'Delete account successful',
+        redirectUrl: '/login.html',
+        user: userDelete
+      })
+    } catch (err) {
+      let statusCode = 500
+      let errorMessage = 'Error updating password'
+
+      switch (err.message) {
+        case 'Password invalid':
+          statusCode = 400
+          errorMessage = 'Password invalid'
+          break
+        default:
+          statusCode = 500
+          errorMessage = 'Error delete account'
+
+          res.status(statusCode).json({
+            success: false,
+            message: errorMessage
+          })
+      }
     }
   }
 }

@@ -27,7 +27,6 @@ body {
 .form-group{
     display: flex;
     flex-direction: column;
-    width: 90%;
     font-size: 1.3rem;
     margin-block: 8px;
 }
@@ -156,4 +155,38 @@ body {
     letter-spacing: 2px;
     background: #313131;
     margin-top: 15px;
+}
+
+.form-group.profile {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+}
+
+.profile-image {
+    max-width: 100px;
+    border-radius: 50%;
+    border: 1px solid #13a113;
+}
+
+.form-group.profile::after {
+    display: none;
+    text-align: center;
+    position: absolute;
+    right: -10%;
+    content: attr(data-profileImage);
+    border-radius: 15px;
+    padding: 10px;
+    font-size: .6rem;
+    font-weight: 600;
+    color: #13a113;
+    background-color: #00000081;
+    transition: .3s ease-in-out;
+}
+
+.form-group.profile:hover::after {
+    display: block;
 }

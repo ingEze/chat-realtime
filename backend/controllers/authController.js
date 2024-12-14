@@ -41,17 +41,15 @@ export class AuthController {
   }
 
   static async registerUsername (req, res) {
-    console.log('Update username endpoint hit')
-    console.log('Request body:', req.body)
-    console.log('Cookies:', req.cookies)
     try {
-      console.log('Dentro del try: authController.registerUsername')
-
-      const { userId, username } = req.body
+      const { username, selectedImageUrl } = req.body
       const tempToken = req.cookies.temp_registration
 
-      console.log('tempToken.registerUsername: ', tempToken)
-      console.log('UserID: ', userId)
+      if (!selectedImageUrl.includes('dropbox.com') || !selectedImageUrl.endsWith('.webp')) {
+        return res.status(400).json({
+          message: 'URL image not valid'
+        })
+      }
 
       if (!username) throw new Error('Username is required')
 
@@ -66,7 +64,6 @@ export class AuthController {
 
       try {
         decoded = JwtService.verifyToken(tempToken)
-        console.log('decoded', decoded)
       } catch (err) {
         return res.status(401).json({
           success: false,
@@ -83,10 +80,11 @@ export class AuthController {
 
       const updateUser = await authService.registerUsername({
         userId: decoded.userId,
-        username
+        username,
+        profileImage: selectedImageUrl
       })
 
-      console.log('updateUser', updateUser)
+      await updateUser.save()
 
       res
         .clearCookie('temp_registration', {
@@ -94,12 +92,12 @@ export class AuthController {
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'strict'
         })
-        .status(200).json({
+        .status(201).json({
           success: true,
           message: 'Registration completed successfully',
           user: {
             username: updateUser.username,
-            email: updateUser.email
+            profileImage: updateUser.profilePhoto
           }
         })
     } catch (err) {
@@ -144,5 +142,9 @@ export class AuthController {
         message: err.message
       })
     }
+  }
+
+  static async userPhoto (req, res) {
+
   }
 }
