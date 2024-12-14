@@ -36,6 +36,19 @@ export const authSession = async (req, res, next) => {
   }
 }
 
+export const secondInstanceRegister = async (req, res, next) => {
+  const secondInstanceToken = req.cookies.second_instance
+
+  const decoded = JwtService.verifySecondInstance(secondInstanceToken)
+  if (!decoded) {
+    res.status(401).json({
+      success: false,
+      message: 'User not authorized'
+    })
+  }
+  next()
+}
+
 export const routeProtected = async (req, res, next) => {
   const sessionToken = req.cookies.session
 

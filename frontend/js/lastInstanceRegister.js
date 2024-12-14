@@ -1,3 +1,20 @@
+// document.addEventListener('DOMContentLoaded', async () => {
+//   try {
+//     const response = await fetch('/auth/register-username', {
+//       method: 'GET',
+//       credentials: 'include'
+//     })
+
+//     if (!response.ok) {
+//       console.error('No token session, redirecting to login')
+//       window.location.href = '/notAuthorized.html'
+//     }
+//   } catch (err) {
+//     console.error('Fatal error:', err)
+//     window.location.href = '/notAuthorized.html'
+//   }
+// })
+
 document.querySelector('#formUsername').addEventListener('submit', async (e) => {
   e.preventDefault()
 

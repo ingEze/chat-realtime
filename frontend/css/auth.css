@@ -114,6 +114,7 @@ body {
 
 /* finish register */
 .container-username {
+    position: relative;
     box-shadow: 0 0 20px 10px #323232;
     padding: 10px;
     border-radius: 10px;
@@ -189,4 +190,61 @@ body {
 
 .form-group.profile:hover::after {
     display: block;
+}
+
+/* select profile image */
+.container-image {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    position: absolute;
+    right: -10px;
+    top: 0;
+    gap: 7px;
+    border: 1px solid green;
+    background: #0c0c0cf5;
+    padding: 5px 7px;
+    z-index: 999;
+}
+
+.container-image img {
+    border: 1px solid rgb(189, 189, 189);
+    width: 60px;
+    cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+    .container-username {
+        width: 100%;
+        max-width: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .container-image {
+        position: static;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+        border: 1px solid green;
+        background: #0c0c0cf5;
+        padding: 5px 7px;
+        margin: 0 auto;
+        max-width: 100%;
+    }
+
+    #formUsername {
+        display: none;
+    }
+
+    .container-image img {
+        width: 100%; 
+        max-width: 100px;
+        height: auto;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .container-image {
+        grid-template-columns: repeat(2, 1fr); 
+    }
 }

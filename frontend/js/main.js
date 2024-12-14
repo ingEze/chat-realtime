@@ -7,11 +7,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!response.ok) {
       console.error('No token session, redirecting to login')
-      window.location.href = '/login.html'
+      window.location.href = '/notAuthorized.html'
     }
   } catch (err) {
     console.error('Fatal error:', err)
-    window.location.href = '/login.html'
+    window.location.href = '/notAuthorized.html'
   }
 })
 

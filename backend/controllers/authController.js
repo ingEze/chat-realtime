@@ -43,7 +43,7 @@ export class AuthController {
   static async registerUsername (req, res) {
     try {
       const { username, selectedImageUrl } = req.body
-      const tempToken = req.cookies.temp_registration
+      const tempToken = req.cookies.second_instance
 
       if (!selectedImageUrl.includes('dropbox.com') || !selectedImageUrl.endsWith('.webp')) {
         return res.status(400).json({
@@ -71,7 +71,7 @@ export class AuthController {
         })
       }
 
-      if (decoded.type !== 'registration') {
+      if (decoded.type !== 'second_instance') {
         return res.status(401).json({
           success: false,
           message: 'Invalid registration session'
