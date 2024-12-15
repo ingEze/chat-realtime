@@ -19,7 +19,7 @@ export class AuthController {
 
       const tempToken = JwtService.generateTempToken(result._id)
       res
-        .cookie('temp_registration', tempToken, {
+        .cookie('second_instance', tempToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           maxAge: 1000 * 60 * 60,

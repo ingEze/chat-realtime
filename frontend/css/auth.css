@@ -194,7 +194,7 @@ body {
 
 /* select profile image */
 .container-image {
-    display: grid;
+    display: none;
     grid-template-columns: repeat(3, 1fr);
     position: absolute;
     right: -10px;
@@ -222,7 +222,7 @@ body {
 
     .container-image {
         position: static;
-        display: grid;
+        display: none;
         grid-template-columns: repeat(3, 1fr);
         gap: 7px;
         border: 1px solid green;
@@ -231,10 +231,10 @@ body {
         margin: 0 auto;
         max-width: 100%;
     }
-
+/* 
     #formUsername {
         display: none;
-    }
+    } */
 
     .container-image img {
         width: 100%; 

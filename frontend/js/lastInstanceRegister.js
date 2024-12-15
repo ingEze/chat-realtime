@@ -1,20 +1,3 @@
-// document.addEventListener('DOMContentLoaded', async () => {
-//   try {
-//     const response = await fetch('/auth/register-username', {
-//       method: 'GET',
-//       credentials: 'include'
-//     })
-
-//     if (!response.ok) {
-//       console.error('No token session, redirecting to login')
-//       window.location.href = '/notAuthorized.html'
-//     }
-//   } catch (err) {
-//     console.error('Fatal error:', err)
-//     window.location.href = '/notAuthorized.html'
-//   }
-// })
-
 document.querySelector('#formUsername').addEventListener('submit', async (e) => {
   e.preventDefault()
 
@@ -44,26 +27,44 @@ document.querySelector('#formUsername').addEventListener('submit', async (e) => 
         'Content-Type': 'application/json'
       },
       credentials: 'include',
-      body: JSON.stringify({ username, profileImage })
+      body: JSON.stringify({ username, profileImage: profileImage ? profileImage.src : null })
     })
 
     const data = await response.json()
-
-    if (data.profileImage) {
-      const imgElement = document.createElement('img')
-      imgElement.src = data.profileImage + '?raw=1'
-      imgElement.alt = 'Imagen de perfil'
-
-      document.querySelector('#profileImage').appendChild(imgElement)
-    }
-
     if (response.ok) {
+      if (data.profileImage) {
+        const imgElement = document.createElement('img')
+        imgElement.src = data.profileImage + '?raw=1'
+        imgElement.alt = 'Imagen de perfil'
+
+        document.querySelector('#profileImage').appendChild(imgElement)
+      }
+
       console.log('registrarion successful')
       window.location.href = '/login.html'
     } else {
-      console.error('Registration failed')
+      console.error('Registration failed', data.message)
+      usernameError(data.message || 'registration failed')
     }
   } catch (err) {
     console.error('Error: ', err)
+    usernameError('An unexpected error occurred')
   }
+})
+
+document.querySelector('#profileImage').addEventListener('click', () => {
+  const form = document.querySelector('#formUsername')
+  const containerImage = document.querySelector('.container-image')
+  const images = document.querySelectorAll('.image')
+
+  form.style.display = 'none'
+  containerImage.style.display = 'grid'
+
+  const handleClick = (image, index) => {
+    console.log(`You clicked on image ${index + 1}`)
+  }
+
+  images.forEach((image, index) => {
+    image.addEventListener('click', () => handleClick(image, index))
+  })
 })

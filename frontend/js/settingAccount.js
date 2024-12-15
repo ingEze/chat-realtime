@@ -12,11 +12,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!response.ok) {
       console.error('No session token')
-      window.location.href = '/login.html'
+      window.location.href = '/notAuthorized.html'
     }
   } catch (err) {
     console.error('Fatal error:', err)
-    window.location.href = '/login.html'
+    window.location.href = '/notAuthorized.html'
   }
 })
 
