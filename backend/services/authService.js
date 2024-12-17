@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 
-import { User } from '../models/sessionModel.js'
+import { ProfileImage, User } from '../models/sessionModel.js'
 import { UserValidation } from '../utils/validation.js'
 import { SALT_ROUNDS } from '../../config/config.js'
 
@@ -34,7 +34,7 @@ export const authService = {
     return tempUser
   },
 
-  async registerUsername ({ userId, username }) {
+  async registerUsername ({ userId, username, profileImageId }) {
     try {
       UserValidation.validateUsername(username)
     } catch (err) {
@@ -43,10 +43,16 @@ export const authService = {
     const existingUsername = await User.findOne({ username })
     if (existingUsername) throw new Error('Username already existing')
 
+    const profileImage = await ProfileImage.findById(profileImageId)
+    if (!profileImage) throw new Error('Profile image not found')
+
     const updateUser = await User.findByIdAndUpdate(
       userId,
-      { username },
-      { new: true, runValidators: true }
+      {
+        username,
+        profilePhoto: ProfileImage.dropboxUrl
+      },
+      { new: true }
     )
 
     if (!updateUser) throw new Error('User not found')

@@ -42,16 +42,17 @@ export class AuthController {
 
   static async registerUsername (req, res) {
     try {
-      const { username, selectedImageUrl } = req.body
+      const { username, profileImageId } = req.body
       const tempToken = req.cookies.second_instance
 
-      if (!selectedImageUrl.includes('dropbox.com') || !selectedImageUrl.endsWith('.webp')) {
+      if (!username) throw new Error('Username is required')
+
+      if (!profileImageId) {
         return res.status(400).json({
-          message: 'URL image not valid'
+          success: false,
+          message: 'Imagen not valid'
         })
       }
-
-      if (!username) throw new Error('Username is required')
 
       if (!tempToken) {
         return res.status(401).json({
@@ -78,13 +79,13 @@ export class AuthController {
         })
       }
 
-      const updateUser = await authService.registerUsername({
+      const user = await authService.registerUsername({
         userId: decoded.userId,
         username,
-        profileImage: selectedImageUrl
+        profileImageId
       })
 
-      await updateUser.save()
+      await user.save()
 
       res
         .clearCookie('temp_registration', {
@@ -96,8 +97,8 @@ export class AuthController {
           success: true,
           message: 'Registration completed successfully',
           user: {
-            username: updateUser.username,
-            profileImage: updateUser.profilePhoto
+            username: user.username,
+            profileImage: user.profilePhoto
           }
         })
     } catch (err) {

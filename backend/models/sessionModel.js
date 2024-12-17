@@ -38,4 +38,17 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 })
 
+const profileImageSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    sparse: true,
+    default: null
+  },
+  dropboxUrl: {
+    type: String,
+    required: true
+  }
+})
+
 export const User = mongoose.model('User', userSchema)
+export const ProfileImage = mongoose.model('ProfileImage', profileImageSchema)

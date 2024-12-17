@@ -1,3 +1,42 @@
+document.querySelector('#profileImage').addEventListener('click', () => {
+  const form = document.querySelector('#formUsername')
+  const imgContainer = document.querySelector('.container-image')
+
+  form.style.display = 'none'
+  imgContainer.style.display = 'grid'
+
+  imgContainer.innerHTML = ''
+
+  const handleImageSelection = async (imageId) => {
+    console.log(`Imagen seleccionada: ${imageId}`)
+
+    document.querySelector('#selectedProfileImage').value = imageId
+  }
+  async function loadProfileImages () {
+    try {
+      const response = await fetch('/auth/profile-images')
+      const data = await response.json()
+      console.log('data:', data)
+
+      if (data.length > 0) {
+        data.forEach((image) => {
+          const imgElement = document.createElement('img')
+          imgElement.src = image.dropboxUrl
+          imgElement.alt = image.name
+          imgElement.dataset.imageId = image._id
+
+          imgElement.addEventListener('click', () => handleImageSelection(image._id))
+
+          imgContainer.appendChild(imgElement)
+        })
+      }
+    } catch (err) {
+      console.error('Error loaded images:', err)
+    }
+  }
+  loadProfileImages()
+})
+
 document.querySelector('#formUsername').addEventListener('submit', async (e) => {
   e.preventDefault()
 
@@ -14,8 +53,8 @@ document.querySelector('#formUsername').addEventListener('submit', async (e) => 
     formGroup.appendChild(message)
   }
 
-  const profileImage = document.querySelector('.profile-image')
   const username = document.querySelector('#inputUsername').value
+  const selectedImageId = document.querySelector('#selectedProfileImage').value
   if (username === '') {
     usernameError('is not valid')
   }
@@ -27,44 +66,21 @@ document.querySelector('#formUsername').addEventListener('submit', async (e) => 
         'Content-Type': 'application/json'
       },
       credentials: 'include',
-      body: JSON.stringify({ username, profileImage: profileImage ? profileImage.src : null })
+      body: JSON.stringify({
+        username,
+        profileImageId: selectedImageId
+      })
     })
 
     const data = await response.json()
     if (response.ok) {
-      if (data.profileImage) {
-        const imgElement = document.createElement('img')
-        imgElement.src = data.profileImage + '?raw=1'
-        imgElement.alt = 'Imagen de perfil'
-
-        document.querySelector('#profileImage').appendChild(imgElement)
-      }
-
       console.log('registrarion successful')
       window.location.href = '/login.html'
     } else {
       console.error('Registration failed', data.message)
-      usernameError(data.message || 'registration failed')
     }
   } catch (err) {
     console.error('Error: ', err)
     usernameError('An unexpected error occurred')
   }
-})
-
-document.querySelector('#profileImage').addEventListener('click', () => {
-  const form = document.querySelector('#formUsername')
-  const containerImage = document.querySelector('.container-image')
-  const images = document.querySelectorAll('.image')
-
-  form.style.display = 'none'
-  containerImage.style.display = 'grid'
-
-  const handleClick = (image, index) => {
-    console.log(`You clicked on image ${index + 1}`)
-  }
-
-  images.forEach((image, index) => {
-    image.addEventListener('click', () => handleClick(image, index))
-  })
 })
