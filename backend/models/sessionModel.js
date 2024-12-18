@@ -3,8 +3,8 @@ import { UserValidation } from '../utils/validation.js'
 
 const userSchema = new mongoose.Schema({
   profilePhoto: {
-    type: String,
-    default: null
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ProfileImage'
   },
   username: {
     type: String,
@@ -48,7 +48,7 @@ const profileImageSchema = new mongoose.Schema({
     type: String,
     required: true
   }
-})
+}, { collection: 'profileImage' })
 
 export const User = mongoose.model('User', userSchema)
 export const ProfileImage = mongoose.model('ProfileImage', profileImageSchema)

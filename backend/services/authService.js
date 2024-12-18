@@ -50,9 +50,8 @@ export const authService = {
       userId,
       {
         username,
-        profilePhoto: ProfileImage.dropboxUrl
-      },
-      { new: true }
+        profileImage: profileImage.dropboxUrl
+      }
     )
 
     if (!updateUser) throw new Error('User not found')
