@@ -3,14 +3,6 @@ import jwt from 'jsonwebtoken'
 import { JWT_KEY } from '../../config/config.js'
 
 export class JwtService {
-  static generateTempToken (userId) {
-    return jwt.sign(
-      { userId, type: 'registration' },
-      JWT_KEY,
-      { expiresIn: '15m' }
-    )
-  }
-
   static generateSessionToken (userId) {
     return jwt.sign(
       { userId, type: 'session' },
@@ -33,6 +25,7 @@ export class JwtService {
       if (decoded.type !== 'second_instance') throw new Error('Invalid token type')
       return decoded
     } catch (err) {
+      console.error('verify second instance error:', err)
       throw new Error('Invalid or expired session register')
     }
   }
@@ -44,16 +37,6 @@ export class JwtService {
       return decoded
     } catch (err) {
       throw new Error('Invalid or expired session')
-    }
-  }
-
-  static verifyToken (token) {
-    try {
-      const decoded = jwt.verify(token, JWT_KEY)
-      if (decoded.type !== 'registration') throw new Error('Invalid token type')
-      return decoded
-    } catch (err) {
-      throw new Error('Invalid or expired Token')
     }
   }
 }

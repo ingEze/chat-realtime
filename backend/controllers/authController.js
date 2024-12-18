@@ -17,7 +17,7 @@ export class AuthController {
 
       const result = await authService.register({ email, password })
 
-      const tempToken = JwtService.generateTempToken(result._id)
+      const tempToken = JwtService.generateSecondInstanceToken(result._id)
       res
         .cookie('second_instance', tempToken, {
           httpOnly: true,
@@ -64,7 +64,7 @@ export class AuthController {
       let decoded
 
       try {
-        decoded = JwtService.verifyToken(tempToken)
+        decoded = JwtService.verifySecondInstance(tempToken)
       } catch (err) {
         return res.status(401).json({
           success: false,
@@ -84,8 +84,6 @@ export class AuthController {
         username,
         profileImageId
       })
-
-      await user.save()
 
       res
         .clearCookie('temp_registration', {

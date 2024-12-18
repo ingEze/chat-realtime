@@ -1,9 +1,29 @@
 const arrayImage = []
 
 document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const response = await fetch('/auth/protected-username', {
+      method: 'GET',
+      credentials: 'include'
+    })
+
+    if (!response.ok) {
+      console.error('User not authorized')
+      window.location.href = '/notAuthorized.html'
+    }
+  } catch (err) {
+    console.error('Error:', err)
+  }
+})
+
+document.addEventListener('DOMContentLoaded', async () => {
   const loader = document.querySelector('.loader')
   const container = document.querySelector('.container-username')
   const profileImageElement = document.querySelector('#profileImage')
+  let selectedImageInput = document.querySelector('#selectedProfileImage').value
+
+  let profileImageId = null
+  selectedImageInput = null
 
   container.style.display = 'none'
 
@@ -32,7 +52,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           img.classList.add('selected-image')
         }
       })
-      console.log(`image selected: ${imageId}`)
     }
 
     if (data.length > 0) {
@@ -45,6 +64,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         imgElement.addEventListener('click', () => {
           form.style.display = 'flex'
           imgContainer.style.display = 'none'
+
+          profileImageId = image._id
+          selectedImageInput = image.dropboxUrl
+          console.log('selected input on imgElement:', selectedImageInput)
           handleImageSelection(image._id, image.dropboxUrl)
         })
         arrayImage.push(imgElement)
@@ -91,7 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const username = document.querySelector('#inputUsername').value
-    const selectedImageInput = document.querySelector('#selectedProfileImage')
+
     if (username === '') {
       usernameError('is not valid')
       return
@@ -102,9 +125,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       return
     }
 
-    const selectedImageId = selectedImageInput.value
+    selectedImageInput = profileImageId
 
-    if (!selectedImageId) {
+    if (!profileImageId) {
       usernameError('Please select a profile image')
       return
     }
@@ -118,7 +141,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         credentials: 'include',
         body: JSON.stringify({
           username,
-          profileImageId: selectedImageId
+          profileImageId
         })
       })
 

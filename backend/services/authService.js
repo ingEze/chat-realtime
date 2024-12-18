@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 
-import { ProfileImage, User } from '../models/sessionModel.js'
+import { PendingRegistration, ProfileImage, User } from '../models/sessionModel.js'
 import { UserValidation } from '../utils/validation.js'
 import { SALT_ROUNDS } from '../../config/config.js'
 
@@ -14,27 +14,21 @@ export const authService = {
 
     const passwordString = String(password)
     if (typeof passwordString !== 'string') throw new Error('Password must be a string')
-
     const saltRounds = parseInt(SALT_ROUNDS, 10)
     const salt = await bcrypt.genSalt(saltRounds)
-
     const hashedPassword = await bcrypt.hash(passwordString, salt)
 
-    const tempUser = new User({
+    const pendingUser = new PendingRegistration({
       email,
-      password: hashedPassword,
-      username: null
+      password: hashedPassword
     })
 
-    await tempUser.save()
+    await pendingUser.save()
 
-    const userResponse = tempUser.toObject()
-    delete userResponse.password
-
-    return tempUser
+    return pendingUser
   },
 
-  async registerUsername ({ userId, username, profileImageId }) {
+  async registerUsername ({ pendingUserId, username, profileImageId }) {
     try {
       UserValidation.validateUsername(username)
     } catch (err) {
@@ -43,20 +37,24 @@ export const authService = {
     const existingUsername = await User.findOne({ username })
     if (existingUsername) throw new Error('Username already existing')
 
+    const pendingUser = await PendingRegistration.findById(pendingUserId)
+    if (!pendingUser) throw new Error('Registration session expired')
+
     const profileImage = await ProfileImage.findById(profileImageId)
     if (!profileImage) throw new Error('Profile image not found')
 
-    const updateUser = await User.findByIdAndUpdate(
-      userId,
-      {
-        username,
-        profileImage: profileImage.dropboxUrl
-      }
-    )
+    const finalUser = new User({
+      email: pendingUser.email,
+      password: pendingUser.password,
+      username,
+      profileImage: profileImageId
+    }).populate('profileImage')
 
-    if (!updateUser) throw new Error('User not found')
+    await finalUser.save()
 
-    const userResponse = updateUser.toObject()
+    await PendingRegistration.findByIdAndDelete(pendingUserId)
+
+    const userResponse = finalUser.toObject()
     delete userResponse.password
 
     return userResponse
