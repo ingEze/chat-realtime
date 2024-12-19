@@ -1,3 +1,5 @@
+let arrayImage = []
+
 document.querySelector('#redirectHome').addEventListener('click', () => {
   window.location.href = '/index.html'
 })
@@ -19,7 +21,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.location.href = '/notAuthorized.html'
   }
 })
-
 // load option selected
 document.addEventListener('DOMContentLoaded', () => {
   const config = {
@@ -280,78 +281,81 @@ async function createPhotoArea (contentBox) {
 
   photoGrid.style.display = 'none'
 
-  try {
-    const response = await fetch('/auth/profile-images', {
-      method: 'GET',
-      credentials: 'include'
-    })
-
-    if (!response) {
-      console.error('Error  recover images:', response.statusText)
-      return null
-    }
-
-    const data = await response.json()
-
-    const handleImageSelection = async (imageId, imageUrl) => {
-      currentPhoto.src = imageUrl
-      createInputHidden.value = imageUrl
-      selectedPhotoId = imageId
-
-      const images = photoGrid.querySelectorAll('.photo-option')
-      images.forEach(img => {
-        img.classList.remove('selected')
-        if (img.dataset.imageId === imageId) {
-          img.classList.add('selected')
-        }
+  currentPhoto.addEventListener('click', async () => {
+    try {
+      const response = await fetch('/auth/profile-images', {
+        method: 'GET',
+        credentials: 'include'
       })
 
-      btnSavePhoto.disabled = false
-      photoGrid.style.display = 'none'
-    }
-
-    if (data.length > 0) {
-      data.forEach(photo => {
-        const photoOption = document.createElement('div')
-        photoOption.classList.add('photo-option')
-        photoOption.dataset.imageId = photo._id
-        photoOption.innerHTML = `<img src="${photo.dropboxUrl}" alt="${photo.name}">`
-
-        photoOption.addEventListener('click', () => {
-          handleImageSelection(photo._id, photo.dropboxUrl)
-        })
-
-        photoGrid.appendChild(photoOption)
-      })
-    }
-    btnSavePhoto.addEventListener('click', async () => {
-      if (!selectedPhotoId) return
-
-      console.log(selectedPhotoId)
-      try {
-        const response = await fetch('/setting/update-profile-image', {
-          method: 'PATCH',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ profileImageId: selectedPhotoId })
-        })
-
-        if (response.ok) {
-          localStorage.removeItem('profileImageUrl')
-          localStorage.setItem('profileImageUrl', currentPhoto.src)
-          window.location.href = '/index.html'
-        } else {
-          console.error('Error updating the image')
-        }
-      } catch (err) {
-        console.error('Error saving the image', err.message)
+      if (!response) {
+        console.error('Error  recover images:', response.statusText)
+        return null
       }
-    })
-  } catch (err) {
-    console.error('error: ', err.message)
-  }
+
+      const data = await response.json()
+      arrayImage = []
+
+      const handleImageSelection = async (imageId, imageUrl) => {
+        currentPhoto.src = imageUrl
+        createInputHidden.value = imageUrl
+        selectedPhotoId = imageId
+
+        const images = photoGrid.querySelectorAll('.photo-option')
+        images.forEach(img => {
+          img.classList.remove('selected')
+          if (img.dataset.imageId === imageId) {
+            img.classList.add('selected')
+          }
+        })
+
+        btnSavePhoto.disabled = false
+        photoGrid.style.display = 'none'
+      }
+
+      if (data.length > 0) {
+        data.forEach(photo => {
+          arrayImage.push(photo.dropboxUrl)
+          const photoOption = document.createElement('div')
+          photoOption.classList.add('photo-option')
+          photoOption.dataset.imageId = photo._id
+          photoOption.innerHTML = `<img src="${photo.dropboxUrl}" alt="${photo.name}">`
+
+          photoOption.addEventListener('click', () => {
+            handleImageSelection(photo._id, photo.dropboxUrl)
+          })
+
+          photoGrid.appendChild(photoOption)
+        })
+      }
+      btnSavePhoto.addEventListener('click', async () => {
+        if (!selectedPhotoId) return
+
+        try {
+          const response = await fetch('/setting/update-profile-image', {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ profileImageId: selectedPhotoId })
+          })
+
+          if (response.ok) {
+            localStorage.removeItem('profileImageUrl')
+            localStorage.setItem('profileImageUrl', currentPhoto.src)
+            window.location.href = '/index.html'
+          } else {
+            console.error('Error updating the image')
+          }
+        } catch (err) {
+          console.error('Error saving the image', err.message)
+        }
+      })
+    } catch (err) {
+      console.error('error: ', err.message)
+    }
+  })
 }
 
 // about us

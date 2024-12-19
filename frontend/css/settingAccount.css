@@ -227,6 +227,7 @@
   align-items: center;
   gap: clamp(0.5rem, 2vw, 1rem);
   padding: clamp(0.8rem, 2vw, 1rem);
+  cursor: pointer;
 }
 
 .current-photo img {
@@ -307,24 +308,6 @@
   display: flex;
   justify-content: center;
   padding: clamp(0.8rem, 2vw, 1rem) 0;
-}
-
-@media (max-width: 465px) {
-  .photos-grid {
-    grid-template-columns: repeat(1, 1fr);
-    gap: 0.5rem;
-    padding: 0.5rem;
-  }
-
-  .photo-selection-container {
-    padding: 0.5rem;
-    gap: 1rem;
-  }
-
-  .current-photo img {
-    width: 60px;
-    height: 60px;
-  }
 }
 
 @media (max-width: 465px) {
