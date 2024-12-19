@@ -15,6 +15,52 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 })
 
+// animation load
+document.addEventListener('DOMContentLoaded', () => {
+  const body = document.body
+  const mainContainer = document.querySelector('.container')
+  const userTagContainer = document.querySelector('#userTag')
+  const logoutBox = document.querySelector('.logout-box')
+
+  const animationLoad = JSON.parse(localStorage.getItem('animationLoad')) || false
+
+  const toggleVisibility = (elements, displayStyle) => {
+    elements.forEach((element) => {
+      if (element) element.style.display = displayStyle
+    })
+  }
+
+  const createLoader = () => {
+    mainContainer.style.display = 'none'
+    userTagContainer.style.display = 'none'
+    logoutBox.style.display = 'none'
+    const loaderContainer = document.createElement('div')
+    loaderContainer.classList.add('loader-container')
+    loaderContainer.innerHTML = `
+      <div class="loader">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        </div>
+        <p class="loader-p">Loading...</p>
+    `
+    body.appendChild(loaderContainer)
+    return loaderContainer
+  }
+
+  if (!animationLoad) {
+    toggleVisibility([mainContainer, userTagContainer, logoutBox], 'none')
+    const loaderContainer = createLoader()
+
+    setTimeout(() => {
+      loaderContainer.style.display = 'none'
+      localStorage.setItem('animationLoad', true)
+      toggleVisibility([mainContainer], 'flex')
+      toggleVisibility([userTagContainer, logoutBox], 'block')
+    }, 2500)
+  }
+})
+
 // load profile image user
 document.addEventListener('DOMContentLoaded', async () => {
   try {
@@ -22,31 +68,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (cachedImageUrl) {
       loadImageToHeader(cachedImageUrl)
     } else {
-      try {
-        const response = await fetch('/protected/user/profile-image', {
-          method: 'GET',
-          credentials: 'include'
-        })
-
-        if (!response.ok) {
-          const data = await response.json()
-          console.error('Error loaded profile image', data)
-        }
-
-        const data = await response.json()
-        const imageUrl = data.imageUrl
-
+      const imageUrl = await fetchProfileImage()
+      if (imageUrl) {
         localStorage.setItem('profileImageUrl', imageUrl)
         loadImageToHeader(imageUrl)
-      } catch (err) {
-        console.error('Failed to load profile image', err.message)
       }
     }
   } catch (err) {
-
+    console.error('Error load profile image', err.message)
   }
 })
 
+async function fetchProfileImage () {
+  try {
+    const response = await fetch('/protected/user/profile-image', {
+      method: 'GET',
+      credentials: 'include'
+    })
+
+    if (!response.ok) {
+      console.error('Error loaded profile image', response.status, response.statusText)
+      return null
+    }
+
+    const data = await response.json()
+    return data.imageUrl
+  } catch (err) {
+    console.error('Failed to load profile image', err.message)
+    return null
+  }
+}
+
+// connect to backend for imageUrl
 function loadImageToHeader (imageUrl) {
   const header = document.querySelector('.header')
   const profileImageContainer = document.createElement('div')
@@ -56,8 +109,13 @@ function loadImageToHeader (imageUrl) {
         `
 
   header.insertBefore(profileImageContainer, header.firstChild)
+
+  profileImageContainer.addEventListener('click', () => {
+    window.location.href = '/settingAccount.html'
+  })
 }
 
+// search user (existing)
 document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('addNewUser')
   const userContainer = document.querySelector('.add-user-search-box')
@@ -132,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 })
 
+// float container (add user)
 document.addEventListener('DOMContentLoaded', () => {
   const addUserContainer = document.querySelector('.add-user-container')
   const addUserFloat = document.getElementById('addUserFloat')
@@ -211,7 +270,8 @@ function renderFriendRequests (requests) {
   })
 }
 
-document.addEventListener('DOMContentLoaded', async (username) => {
+// userTag
+document.addEventListener('DOMContentLoaded', async () => {
   const userTag = document.querySelector('#userTag')
 
   try {
@@ -248,6 +308,7 @@ document.querySelector('#logout').addEventListener('click', async () => {
     if (response.ok) {
       console.log('Logout success')
       window.location.href = '/login.html'
+      localStorage.removeItem('animationLoad')
     } else {
       console.error('Error when logging out')
     }
