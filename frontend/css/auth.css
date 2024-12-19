@@ -119,7 +119,7 @@ body {
     box-shadow: 0 0 20px 10px #323232;
     padding: 10px;
     border-radius: 10px;
-    width: 300px;
+    width: clamp(150px, 90vw, 400px);
 }
 
 #formUsername {
@@ -176,7 +176,8 @@ body {
 
 /* select profile image */
 .container-image {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    display: none;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     gap: 7px;
     border: 1px solid green;
     background: #0c0c0cf5;
@@ -189,7 +190,6 @@ body {
 
 .container-image img {
     width: 100%;
-    max-width: 300px;
     aspect-ratio: 1 / 1;
     object-fit: cover;
     cursor: pointer;

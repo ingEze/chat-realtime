@@ -1,3 +1,5 @@
+const arrayImage = []
+
 document.querySelector('#redirectHome').addEventListener('click', () => {
   window.location.href = '/index.html'
 })
@@ -219,6 +221,98 @@ menuContainer.addEventListener('click', (e) => {
   }
   clickedItem.classList.add('select')
 })
+
+// change photo
+menuContainer.querySelector('#changePhoto').addEventListener('click', async () => {
+  const cachedImageUrl = localStorage.getItem('profileImageUrl')
+  settingContent.innerHTML = ''
+
+  if (cachedImageUrl) {
+    loadProfileImage(cachedImageUrl)
+  } else {
+    const photoUrl = await fetchRecoverUserImage()
+    if (photoUrl) {
+      localStorage.setItem('profileImageUrl', photoUrl)
+      loadProfileImage(photoUrl)
+    }
+  }
+})
+
+function loadProfileImage (photoUrl) {
+  const containerSettingContent = document.querySelector('.container-setting-content')
+  const contentBox = document.createElement('div')
+  contentBox.classList.add('content-box', 'photo-selection-container')
+  contentBox.innerHTML = `
+    <h3 class="content-title">Select profile image</h3>
+    
+    <div class="current-photo">
+      <img src="${photoUrl}" alt="Foto actual">
+      <p>Tu foto actual</p>
+    </div>
+
+    <div class="photos-grid" id="photosGrid"></div>
+
+    <div class="button-box">
+      <button type="button" id="btnSavePhoto" disabled>Save</button>
+    </div>
+  `
+
+  containerSettingContent.appendChild(contentBox)
+}
+
+// create element contentBox
+function createPhotoArea (contentBox) {
+  const photoGrid = contentBox.querySelector('#photosGrid')
+  const btnSavePhoto = contentBox.querySelector('#btnSavePhoto')
+  let selectedPhotoId = null
+
+  arrayImage.forEach(photo => {
+    const photoOption = contentBox.createElement('div')
+    photoOption.classList.add('photo-option')
+    photoOption.dataset.photoId = photo._id
+    photoOption.innerHTML = `<img src="${photo.dropboxUrl}" alt="Opción de foto ${photo._id}">`
+
+    photoOption.addEventListener('click', () => {
+      document.querySelectorAll('.photo-option.selected')
+        .forEach(img => img.classList.remove('selected'))
+
+      photoOption.classList.add('selected')
+      selectedPhotoId = photo._id
+      btnSavePhoto.disabled = false
+    })
+    photoGrid.appendChild(photoOption)
+
+    btnSavePhoto.addEventListener('click', async () => {
+      if (!selectedPhotoId) return
+      fetchRecoverUserImage()
+    })
+  })
+}
+
+// fetch to recover image user
+async function fetchRecoverUserImage () {
+  try {
+    const response = await fetch('/protected/user/profile-image', {
+      method: 'GET',
+      credentials: 'include'
+    })
+
+    if (!response.ok) {
+      console.error('Error on extration image')
+      return null
+    }
+
+    const data = await response.json()
+    console.log('data:', data)
+
+    const dataUrl = data.imageUrl
+    console.log('dataUrl:', dataUrl)
+
+    return dataUrl
+  } catch (err) {
+    console.error('Error recover profile image:', err.message)
+  }
+}
 
 // about us
 menuContainer.querySelector('#aboutUs').addEventListener('click', () => {

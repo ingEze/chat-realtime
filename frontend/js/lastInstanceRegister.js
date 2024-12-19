@@ -73,7 +73,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         arrayImage.push(imgElement)
       })
     }
-  } catch (err) {}
+  } catch (err) {
+    console.error('Error:', err.message)
+  }
 
   document.querySelector('#profileImage').addEventListener('click', () => {
     const form = document.querySelector('#formUsername')
@@ -84,7 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     imgContainer.innerHTML = ''
 
-    async function loadProfileImages () {
+    function loadProfileImages () {
       try {
         arrayImage.forEach(image => {
           imgContainer.appendChild(image)

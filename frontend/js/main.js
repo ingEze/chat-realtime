@@ -21,8 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const mainContainer = document.querySelector('.container')
   const userTagContainer = document.querySelector('#userTag')
   const logoutBox = document.querySelector('.logout-box')
-
+  const localStorageUrl = localStorage.getItem('profileImageUrl')
   const animationLoad = JSON.parse(localStorage.getItem('animationLoad')) || false
+
+  if (localStorageUrl) {
+    localStorage.removeItem('profileImageUrl')
+  }
 
   const toggleVisibility = (elements, displayStyle) => {
     elements.forEach((element) => {
@@ -307,6 +311,7 @@ document.querySelector('#logout').addEventListener('click', async () => {
       console.log('Logout success')
       window.location.href = '/login.html'
       localStorage.removeItem('animationLoad')
+      localStorage.removeItem('profileImageUrl')
     } else {
       console.error('Error when logging out')
     }
