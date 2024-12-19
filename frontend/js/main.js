@@ -110,9 +110,7 @@ function loadImageToHeader (imageUrl) {
 
   header.insertBefore(profileImageContainer, header.firstChild)
 
-  profileImageContainer.addEventListener('click', () => {
-    window.location.href = '/settingAccount.html'
-  })
+  viewUserImage(profileImageContainer, imageUrl)
 }
 
 // search user (existing)
@@ -316,3 +314,36 @@ document.querySelector('#logout').addEventListener('click', async () => {
     console.error('Error logout:', err)
   }
 })
+
+// function view profile image
+function viewUserImage (element, imageUrl) {
+  element.addEventListener('click', () => {
+    const body = document.body
+    const container = document.querySelector('.container')
+    const viewUserImageContainer = document.createElement('div')
+    viewUserImageContainer.classList.add('view-user-image-container')
+    viewUserImageContainer.innerHTML = `
+                <i class="fa fa-times"></i>
+                <img src="${imageUrl}" alt="User profile image">
+    `
+
+    const overlay = document.createElement('div')
+    overlay.classList.add('overlay')
+
+    if (!container.classList.contains('blurred')) {
+      body.appendChild(viewUserImageContainer)
+      container.classList.add('blurred')
+      container.appendChild(overlay)
+    } else {
+      container.classList.remove('blurred')
+      body.removeChild(viewUserImageContainer)
+      container.removeChild(overlay)
+    }
+
+    viewUserImageContainer.querySelector('.fa-times').addEventListener('click', () => {
+      body.removeChild(viewUserImageContainer)
+      container.removeChild(overlay)
+      container.classList.remove('blurred')
+    })
+  })
+}
