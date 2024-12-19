@@ -9,6 +9,8 @@ settingRouter.patch('/change-username', authSession, SettingController.updateUse
 settingRouter.patch('/change-email', authSession, SettingController.updateEmail)
 settingRouter.patch('/change-password', authSession, SettingController.updatePassword)
 
+settingRouter.patch('/update-profile-image', authSession, SettingController.updateProfileImage)
+
 settingRouter.delete('/delete-account', authSession, SettingController.deleteAccount)
 
 export default settingRouter

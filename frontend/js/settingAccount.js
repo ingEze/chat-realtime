@@ -1,5 +1,3 @@
-const arrayImage = []
-
 document.querySelector('#redirectHome').addEventListener('click', () => {
   window.location.href = '/index.html'
 })
@@ -240,7 +238,7 @@ menuContainer.querySelector('#changePhoto').addEventListener('click', async () =
 
 function loadProfileImage (photoUrl) {
   const containerSettingContent = document.querySelector('.container-setting-content')
-  const contentBox = document.createElement('div')
+  const contentBox = document.createElement('from')
   contentBox.classList.add('content-box', 'photo-selection-container')
   contentBox.innerHTML = `
     <h3 class="content-title">Select profile image</h3>
@@ -250,6 +248,8 @@ function loadProfileImage (photoUrl) {
       <p>Tu foto actual</p>
     </div>
 
+    <input type="hidden" id="selectedProfileImage" name="profileImageId" value="">
+    
     <div class="photos-grid" id="photosGrid"></div>
 
     <div class="button-box">
@@ -257,60 +257,100 @@ function loadProfileImage (photoUrl) {
     </div>
   `
 
+  containerSettingContent.innerHTML = ''
   containerSettingContent.appendChild(contentBox)
+
+  const currentPhotoImage = contentBox.querySelector('.current-photo img')
+
+  currentPhotoImage.addEventListener('click', () => {
+    const photosGrid = contentBox.querySelector('#photosGrid')
+    photosGrid.style.display = photosGrid.style.display === 'none' ? 'grid' : 'none'
+  })
+
+  createPhotoArea(contentBox)
 }
 
 // create element contentBox
-function createPhotoArea (contentBox) {
-  const photoGrid = contentBox.querySelector('#photosGrid')
+async function createPhotoArea (contentBox) {
   const btnSavePhoto = contentBox.querySelector('#btnSavePhoto')
+  const createInputHidden = contentBox.querySelector('#selectedProfileImage')
   let selectedPhotoId = null
+  const currentPhoto = contentBox.querySelector('.current-photo img')
+  const photoGrid = contentBox.querySelector('#photosGrid')
 
-  arrayImage.forEach(photo => {
-    const photoOption = contentBox.createElement('div')
-    photoOption.classList.add('photo-option')
-    photoOption.dataset.photoId = photo._id
-    photoOption.innerHTML = `<img src="${photo.dropboxUrl}" alt="Opción de foto ${photo._id}">`
+  photoGrid.style.display = 'none'
 
-    photoOption.addEventListener('click', () => {
-      document.querySelectorAll('.photo-option.selected')
-        .forEach(img => img.classList.remove('selected'))
-
-      photoOption.classList.add('selected')
-      selectedPhotoId = photo._id
-      btnSavePhoto.disabled = false
-    })
-    photoGrid.appendChild(photoOption)
-
-    btnSavePhoto.addEventListener('click', async () => {
-      if (!selectedPhotoId) return
-      fetchRecoverUserImage()
-    })
-  })
-}
-
-// fetch to recover image user
-async function fetchRecoverUserImage () {
   try {
-    const response = await fetch('/protected/user/profile-image', {
+    const response = await fetch('/auth/profile-images', {
       method: 'GET',
       credentials: 'include'
     })
 
-    if (!response.ok) {
-      console.error('Error on extration image')
+    if (!response) {
+      console.error('Error  recover images:', response.statusText)
       return null
     }
 
     const data = await response.json()
-    console.log('data:', data)
 
-    const dataUrl = data.imageUrl
-    console.log('dataUrl:', dataUrl)
+    const handleImageSelection = async (imageId, imageUrl) => {
+      currentPhoto.src = imageUrl
+      createInputHidden.value = imageUrl
+      selectedPhotoId = imageId
 
-    return dataUrl
+      const images = photoGrid.querySelectorAll('.photo-option')
+      images.forEach(img => {
+        img.classList.remove('selected')
+        if (img.dataset.imageId === imageId) {
+          img.classList.add('selected')
+        }
+      })
+
+      btnSavePhoto.disabled = false
+      photoGrid.style.display = 'none'
+    }
+
+    if (data.length > 0) {
+      data.forEach(photo => {
+        const photoOption = document.createElement('div')
+        photoOption.classList.add('photo-option')
+        photoOption.dataset.imageId = photo._id
+        photoOption.innerHTML = `<img src="${photo.dropboxUrl}" alt="${photo.name}">`
+
+        photoOption.addEventListener('click', () => {
+          handleImageSelection(photo._id, photo.dropboxUrl)
+        })
+
+        photoGrid.appendChild(photoOption)
+      })
+    }
+    btnSavePhoto.addEventListener('click', async () => {
+      if (!selectedPhotoId) return
+
+      console.log(selectedPhotoId)
+      try {
+        const response = await fetch('/setting/update-profile-image', {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ profileImageId: selectedPhotoId })
+        })
+
+        if (response.ok) {
+          localStorage.removeItem('profileImageUrl')
+          localStorage.setItem('profileImageUrl', currentPhoto.src)
+          window.location.href = '/index.html'
+        } else {
+          console.error('Error updating the image')
+        }
+      } catch (err) {
+        console.error('Error saving the image', err.message)
+      }
+    })
   } catch (err) {
-    console.error('Error recover profile image:', err.message)
+    console.error('error: ', err.message)
   }
 }
 

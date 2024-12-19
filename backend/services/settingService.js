@@ -87,8 +87,22 @@ export class SettingService {
       await user.deleteOne()
       return { message: 'Account successfully deleted' }
     } catch (err) {
-      console.error('Error completo en configService:')
       throw new Error(err.message || 'Error delete account')
+    }
+  }
+
+  static async updateProfileImage ({ userId, profileImageId }) {
+    try {
+      const updateImage = await User.findByIdAndUpdate(
+        userId,
+        { profileImage: profileImageId },
+        { new: true, runValidators: true }
+      )
+      if (!updateImage) throw new Error('User not found')
+
+      return updateImage
+    } catch (err) {
+      throw new Error('Error update image')
     }
   }
 }

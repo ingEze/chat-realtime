@@ -186,4 +186,43 @@ export class SettingController {
       }
     }
   }
+
+  static async updateProfileImage (req, res) {
+    try {
+      const { profileImageId } = req.body
+      const userId = req.user._id
+
+      if (!req.user) {
+        res.status(401).json({
+          success: false,
+          message: 'User not authorized'
+        })
+      }
+
+      if (!userId) {
+        res.status(404).json({
+          success: false,
+          mesagge: 'User not found'
+        })
+      }
+
+      const user = await SettingService.updateProfileImage({
+        userId,
+        profileImageId
+      })
+
+      res.status(200).json({
+        success: true,
+        message: 'Image updated',
+        user: { profileImage: user.profileImage }
+      })
+    } catch (err) {
+      console.error('Error in controller:', err.message)
+      console.error('Error controller:', err)
+      res.status(500).json({
+        success: false,
+        message: 'Error updated image'
+      })
+    }
+  }
 }

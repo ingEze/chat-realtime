@@ -10,8 +10,7 @@ export class UserDataService {
       }
       return profileImage.dropboxUrl
     } catch (err) {
-      console.error('Error al obtener la imagen:', err.message)
-      throw new Error('Error retrieving the image URL', err.message)
+      throw new Error('Error retrieving the image URL')
     }
   }
 }
