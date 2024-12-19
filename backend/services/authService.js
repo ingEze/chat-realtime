@@ -18,6 +18,8 @@ export const authService = {
     const salt = await bcrypt.genSalt(saltRounds)
     const hashedPassword = await bcrypt.hash(passwordString, salt)
 
+    await PendingRegistration.deleteMany({ email })
+
     const pendingUser = new PendingRegistration({
       email,
       password: hashedPassword
@@ -48,9 +50,10 @@ export const authService = {
       password: pendingUser.password,
       username,
       profileImage: profileImageId
-    }).populate('profileImage')
+    })
 
     await finalUser.save()
+    await finalUser.populate('profileImage', 'name')
 
     await PendingRegistration.findByIdAndDelete(pendingUserId)
 

@@ -1,4 +1,5 @@
 import { User } from '../models/sessionModel.js'
+import { UserDataService } from '../services/userService.js'
 
 export class Search {
   static async searchUsers (req, res) {
@@ -22,7 +23,9 @@ export class Search {
       res.status(500).json({ message: 'Error al buscar usuarios' })
     }
   }
+}
 
+export class UserController {
   static async userTag (req, res) {
     try {
       if (!req.user || !req.user._id) {
@@ -40,6 +43,38 @@ export class Search {
       res.status(500).json({
         success: false,
         message: 'Error in server, not username'
+      })
+    }
+  }
+
+  static async profileImageLoad (req, res) {
+    try {
+      if (!req.user || !req.user._id) {
+        return res.status(401).json({
+          success: false,
+          message: 'No authenticated'
+        })
+      }
+
+      const imageId = req.user.profileImage
+
+      if (!imageId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Image ID is required'
+        })
+      }
+
+      const imageUrl = await UserDataService.userLoadImage(imageId)
+
+      return res.status(200).json({
+        success: true,
+        imageUrl
+      })
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: err.message || 'Error load image'
       })
     }
   }

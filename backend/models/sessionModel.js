@@ -5,7 +5,7 @@ const pendingRegistrationSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
+    unique: false,
     validate: {
       validator: function (email) {
         return UserValidation.validateEmail(email)
@@ -24,6 +24,12 @@ const pendingRegistrationSchema = new mongoose.Schema({
   }
 })
 
+pendingRegistrationSchema.indexes().forEach(index => {
+  if (index[0].email === 1) {
+    pendingRegistrationSchema.index({ email: 1 }, { unique: false })
+  }
+})
+
 const userSchema = new mongoose.Schema({
   profileImage: {
     type: mongoose.Schema.Types.ObjectId,
@@ -37,7 +43,7 @@ const userSchema = new mongoose.Schema({
       validator: function (email) {
         return UserValidation.validateEmail(email)
       },
-      message: props => `${props.value} email not valid`
+      message: props => `${props.value} is not a valid email`
     }
   },
   password: {
@@ -53,9 +59,12 @@ const userSchema = new mongoose.Schema({
     validate: {
       validator: async function (username) {
         if (!username) {
-          console.error('Username already existed')
+          return false
         }
-      }
+        const existingUser = await mongoose.models.User.findOne({ username })
+        return !existingUser
+      },
+      message: 'Username already exists'
     }
   }
 }, {
@@ -73,19 +82,6 @@ const profileImageSchema = new mongoose.Schema({
     required: true
   }
 }, { collection: 'profileImage' })
-
-export async function cleanupIncompleteRegistrations () {
-  const oneHourAgo = new Date(Date.now() - 3600000)
-  try {
-    const result = await User.deleteMany({
-      isRegistrationComplete: false,
-      createdAt: { $lt: oneHourAgo }
-    })
-    console.log(`Cleaned up ${result.deletetedCount} incomplete registrations`)
-  } catch (err) {
-    console.error('Error cleaning up incomplete registrations:', err)
-  }
-}
 
 export const PendingRegistration = mongoose.model('PendingRegistration', pendingRegistrationSchema)
 export const User = mongoose.model('User', userSchema)

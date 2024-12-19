@@ -37,16 +37,25 @@ export const authSession = async (req, res, next) => {
 }
 
 export const secondInstanceRegister = async (req, res, next) => {
-  const secondInstanceToken = req.cookies.second_instance
+  try {
+    const secondInstanceToken = req.cookies.second_instance
 
-  const decoded = JwtService.verifySecondInstance(secondInstanceToken)
-  if (!decoded) {
-    res.status(401).json({
+    if (!secondInstanceToken) {
+      return res.stauts(401).json({
+        success: false,
+        message: 'No registration token provided'
+      })
+    }
+
+    const decoded = JwtService.verifySecondInstance(secondInstanceToken)
+    req.temporaryRegistration = decoded
+    next()
+  } catch (err) {
+    return res.status(401).json({
       success: false,
-      message: 'User not authorized'
+      message: 'Invalid or expired registration session'
     })
   }
-  next()
 }
 
 export const routeProtected = async (req, res, next) => {

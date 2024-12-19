@@ -15,6 +15,49 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 })
 
+// load profile image user
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const cachedImageUrl = localStorage.getItem('profileImageUrl')
+    if (cachedImageUrl) {
+      loadImageToHeader(cachedImageUrl)
+    } else {
+      try {
+        const response = await fetch('/protected/user/profile-image', {
+          method: 'GET',
+          credentials: 'include'
+        })
+
+        if (!response.ok) {
+          const data = await response.json()
+          console.error('Error loaded profile image', data)
+        }
+
+        const data = await response.json()
+        const imageUrl = data.imageUrl
+
+        localStorage.setItem('profileImageUrl', imageUrl)
+        loadImageToHeader(imageUrl)
+      } catch (err) {
+        console.error('Failed to load profile image', err.message)
+      }
+    }
+  } catch (err) {
+
+  }
+})
+
+function loadImageToHeader (imageUrl) {
+  const header = document.querySelector('.header')
+  const profileImageContainer = document.createElement('div')
+  profileImageContainer.classList.add('profile-image-container')
+  profileImageContainer.innerHTML = `
+          <img src="${imageUrl}" alt="Profile Image" class="profile-image">
+        `
+
+  header.insertBefore(profileImageContainer, header.firstChild)
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('addNewUser')
   const userContainer = document.querySelector('.add-user-search-box')
@@ -108,26 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 })
 
-// logout
-
-document.querySelector('#logout').addEventListener('click', async () => {
-  try {
-    const response = await fetch('/auth/logout', {
-      method: 'POST',
-      credentials: 'include'
-    })
-
-    if (response.ok) {
-      console.log('Logout success')
-      window.location.href = '/login.html'
-    } else {
-      console.error('Error when logging out')
-    }
-  } catch (err) {
-    console.error('Error logout:', err)
-  }
-})
-
 // Modificación del main.js
 async function addFriend (username) {
   try {
@@ -192,7 +215,7 @@ document.addEventListener('DOMContentLoaded', async (username) => {
   const userTag = document.querySelector('#userTag')
 
   try {
-    const response = await fetch('/setting/usertag', {
+    const response = await fetch('/protected/usertag', {
       method: 'GET',
       credentials: 'include'
     })
@@ -209,6 +232,26 @@ document.addEventListener('DOMContentLoaded', async (username) => {
   }
 })
 
+// redirect
 document.querySelector('#userTag').addEventListener('click', () => {
   window.location.href = '/settingAccount.html'
+})
+
+// logout
+document.querySelector('#logout').addEventListener('click', async () => {
+  try {
+    const response = await fetch('/auth/logout', {
+      method: 'POST',
+      credentials: 'include'
+    })
+
+    if (response.ok) {
+      console.log('Logout success')
+      window.location.href = '/login.html'
+    } else {
+      console.error('Error when logging out')
+    }
+  } catch (err) {
+    console.error('Error logout:', err)
+  }
 })

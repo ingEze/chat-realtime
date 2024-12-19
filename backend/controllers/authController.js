@@ -18,6 +18,7 @@ export class AuthController {
       const result = await authService.register({ email, password })
 
       const tempToken = JwtService.generateSecondInstanceToken(result._id)
+
       res
         .cookie('second_instance', tempToken, {
           httpOnly: true,
@@ -27,7 +28,7 @@ export class AuthController {
         })
         .status(201).json({
           success: true,
-          message: 'User registered, redireccion to ingres username',
+          message: 'First step completed',
           userId: result._id,
           tempToken
         })
@@ -80,13 +81,13 @@ export class AuthController {
       }
 
       const user = await authService.registerUsername({
-        userId: decoded.userId,
+        pendingUserId: decoded.userId,
         username,
         profileImageId
       })
 
       res
-        .clearCookie('temp_registration', {
+        .clearCookie('second_instance', {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'strict'
@@ -96,7 +97,7 @@ export class AuthController {
           message: 'Registration completed successfully',
           user: {
             username: user.username,
-            profileImage: user.profilePhoto
+            profileImage: user.profileImage
           }
         })
     } catch (err) {
@@ -141,9 +142,5 @@ export class AuthController {
         message: err.message
       })
     }
-  }
-
-  static async userPhoto (req, res) {
-
   }
 }

@@ -8,6 +8,7 @@ import { corsMiddleware } from '../config/cors.js'
 import authRouter from './routes/authRoutes.js'
 import friendRouter from './routes/friendRoutes.js'
 import settingRouter from './routes/settingRoutes.js'
+import protectedUserRouter from './routes/protectedUser.js'
 
 const app = express()
 app.use(cookieParser())
@@ -19,6 +20,7 @@ app.use(express.static('frontend'))
 app.use('/auth', authRouter)
 app.use('/friends', friendRouter)
 app.use('/setting', settingRouter)
+app.use('/protected', protectedUserRouter)
 
 try {
   await connectDB()
