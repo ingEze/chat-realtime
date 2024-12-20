@@ -15,12 +15,27 @@ export class Search {
       const users = await User.find({
         username: { $regex: q, $options: 'i' },
         _id: { $ne: req.user._id }
-      }).select('username')
+      }).select('username profileImage')
 
-      res.json(users)
+      const resolvedUsers = await Promise.all(
+        users.map(async (user) => {
+          const imageUrl = user.profileImage
+            ? await UserDataService.searchUsers(user.profileImage)
+            : null
+          return {
+            username: user.username,
+            profileImage: imageUrl
+          }
+        })
+      )
+
+      res.json(resolvedUsers)
     } catch (err) {
       console.error('Error searching users: ', err)
-      res.status(500).json({ message: 'Error al buscar usuarios' })
+      res.status(500).json({
+        success: false,
+        message: 'Error searching users'
+      })
     }
   }
 }
@@ -49,14 +64,15 @@ export class UserController {
 
   static async profileImageLoad (req, res) {
     try {
-      if (!req.user || !req.user._id) {
+      const user = req.user
+      const imageId = user.profileImage
+
+      if (!user) {
         return res.status(401).json({
           success: false,
-          message: 'No authenticated'
+          message: 'User not authorized'
         })
       }
-
-      const imageId = req.user.profileImage
 
       if (!imageId) {
         return res.status(400).json({
@@ -66,7 +82,6 @@ export class UserController {
       }
 
       const imageUrl = await UserDataService.userLoadImage(imageId)
-
       return res.status(200).json({
         success: true,
         imageUrl

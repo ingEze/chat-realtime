@@ -187,6 +187,7 @@ input[type="search"]::-webkit-search-cancel-button {
     padding-block: 1rem;
     background: var(--grey-dark);
     overflow: hidden;
+    width: 100%;
 }
 
 .search-input {
@@ -196,14 +197,11 @@ input[type="search"]::-webkit-search-cancel-button {
     border-bottom-right-radius: 10px;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    width: 70%;
+    width: 100%;
     max-width: 400px;
+    height: 100%;
+    font-size: 1rem;
     outline: none;
-}
-
-.existing-user-search {
-    display: flex;
-    align-items: center;
 }
 
 .existing-user-search i {
@@ -211,12 +209,13 @@ input[type="search"]::-webkit-search-cancel-button {
     text-align: center;
     justify-content: center;
     padding: .8rem 1rem;
-    font-size: .95rem;
+    font-size: 1rem;
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
     background: var(--blue);
     cursor: pointer;
     flex-shrink: 0;
+    height: 100%;
 }
 
 .container-main {

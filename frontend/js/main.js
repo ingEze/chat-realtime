@@ -15,18 +15,54 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 })
 
-// animation load
-document.addEventListener('DOMContentLoaded', () => {
+// load profile image user
+async function handleProfileImage () {
+  try {
+    const cachedImageUrl = localStorage.getItem('profileImageUrl')
+    let imageUrl = cachedImageUrl
+
+    if (!cachedImageUrl) {
+      const response = await fetch('/protected/user/profile-image', {
+        method: 'GET',
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        console.error('Error loaded profile image', response.status, response.statusText)
+        return null
+      }
+
+      const data = await response.json()
+      imageUrl = data.imageUrl
+
+      if (imageUrl) {
+        localStorage.setItem('profileImageUrl', imageUrl)
+      }
+    }
+
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      img.src = imageUrl
+      img.onload = () => resolve(imageUrl)
+      img.oneerror = () => {
+        localStorage.removeItem('profileImageUrl')
+        reject(new Error('Error load profile image'))
+      }
+    })
+  } catch (err) {
+    console.error('Error load profile image:', err)
+    return null
+  }
+}
+
+// animation load (main)
+document.addEventListener('DOMContentLoaded', async () => {
   const body = document.body
   const mainContainer = document.querySelector('.container')
   const userTagContainer = document.querySelector('#userTag')
   const logoutBox = document.querySelector('.logout-box')
-  const localStorageUrl = localStorage.getItem('profileImageUrl')
   const animationLoad = JSON.parse(localStorage.getItem('animationLoad')) || false
-
-  if (localStorageUrl) {
-    localStorage.removeItem('profileImageUrl')
-  }
+  const cachedImageUrl = localStorage.getItem('profileImageUrl')
 
   const toggleVisibility = (elements, displayStyle) => {
     elements.forEach((element) => {
@@ -34,27 +70,45 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
-  const createLoader = () => {
-    mainContainer.style.display = 'none'
-    userTagContainer.style.display = 'none'
-    logoutBox.style.display = 'none'
-    const loaderContainer = document.createElement('div')
-    loaderContainer.classList.add('loader-container')
-    loaderContainer.innerHTML = `
-      <div class="loader">
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        </div>
-        <p class="loader-p">Loading...</p>
-    `
-    body.appendChild(loaderContainer)
-    return loaderContainer
+  if (cachedImageUrl) loadImageToHeader(cachedImageUrl)
+
+  if (!animationLoad) {
+    toggleVisibility([mainContainer, userTagContainer, logoutBox], 'none')
+    createAnimationLoad(body)
+
+    try {
+      if (!cachedImageUrl) {
+        const imageUrl = await handleProfileImage()
+        if (imageUrl) loadImageToHeader(imageUrl)
+      }
+
+      await Promise.all([
+        new Promise((resolve) => setTimeout(resolve, 2500)),
+        imageUrl ? Promise.resolve() : Promise.resolve()
+      ])
+
+      await new Promise((resolve) => setTimeout(resolve, 2500))
+
+      removeAnimationLoad(body)
+      localStorage.setItem('animationLoad', true)
+      toggleVisibility([mainContainer], 'flex')
+      toggleVisibility([userTagContainer, logoutBox], 'block')
+    } catch (err) {
+      console.error('Error in initalization:', err)
+      removeAnimationLoad(body)
+      toggleVisibility([mainContainer], 'flex')
+      toggleVisibility([userTagContainer, logoutBox], 'block')
+    }
+  } else {
+    if (!cachedImageUrl) {
+      const imageUrl = await handleProfileImage()
+      if (imageUrl) loadImageToHeader(imageUrl)
+    }
   }
 
   if (!animationLoad) {
     toggleVisibility([mainContainer, userTagContainer, logoutBox], 'none')
-    const loaderContainer = createLoader()
+    const loaderContainer = createAnimationLoad(body)
 
     setTimeout(() => {
       loaderContainer.style.display = 'none'
@@ -65,56 +119,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 })
 
-// load profile image user
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    const cachedImageUrl = localStorage.getItem('profileImageUrl')
-    if (cachedImageUrl) {
-      loadImageToHeader(cachedImageUrl)
-    } else {
-      const imageUrl = await fetchProfileImage()
-      if (imageUrl) {
-        localStorage.setItem('profileImageUrl', imageUrl)
-        loadImageToHeader(imageUrl)
-      }
-    }
-  } catch (err) {
-    console.error('Error load profile image', err.message)
-  }
-})
-
-async function fetchProfileImage () {
-  try {
-    const response = await fetch('/protected/user/profile-image', {
-      method: 'GET',
-      credentials: 'include'
-    })
-
-    if (!response.ok) {
-      console.error('Error loaded profile image', response.status, response.statusText)
-      return null
-    }
-
-    const data = await response.json()
-    return data.imageUrl
-  } catch (err) {
-    console.error('Failed to load profile image', err.message)
-    return null
-  }
-}
-
 // connect to backend for imageUrl
 function loadImageToHeader (imageUrl) {
-  const header = document.querySelector('.header')
-  const profileImageContainer = document.createElement('div')
-  profileImageContainer.classList.add('profile-image-container')
-  profileImageContainer.innerHTML = `
-          <img src="${imageUrl}" alt="Profile Image" class="profile-image">
-        `
+  const existingImage = document.querySelector('.profile-image-container')
 
-  header.insertBefore(profileImageContainer, header.firstChild)
+  if (!existingImage) {
+    const header = document.querySelector('.header')
+    const profileImageContainer = document.createElement('div')
+    profileImageContainer.classList.add('profile-image-container')
 
-  viewUserImage(profileImageContainer, imageUrl)
+    const img = new Image()
+    img.onload = () => {
+      profileImageContainer.innerHTML = `
+          <img src="${imageUrl}" alt="" class="profile-image">
+      `
+      header.insertBefore(profileImageContainer, header.firstChild)
+      viewUserImage(profileImageContainer, imageUrl)
+    }
+    img.src = imageUrl
+  }
 }
 
 // search user (existing)
@@ -122,15 +145,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('addNewUser')
   const userContainer = document.querySelector('.add-user-search-box')
   const searchIcon = document.querySelector('.add-new-user-search i')
+  const arrayUsers = []
 
   async function searchUsers (query) {
-    userContainer.innerHTML = ''
-
     if (!query || query.trim() === '') {
       return
     }
 
     try {
+      userContainer.innerHTML = ''
+      arrayUsers.length = 0
+      createAnimationLoad(userContainer)
+
       const response = await fetch(`/friends/search?q=${encodeURIComponent(query)}`, {
         method: 'GET',
         credentials: 'include'
@@ -139,7 +165,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!response.ok) throw new Error('No se pudieron obtener los usuarios')
 
       const users = await response.json()
-      renderUsers(users)
+      const usersWithImagesLoaded = await loadImage(users)
+
+      removeAnimationLoad(userContainer)
+      arrayUsers.push(...usersWithImagesLoaded)
+
+      renderUsers(arrayUsers)
     } catch (err) {
       userContainer.innerHTML = `
             <div class="new-user">
@@ -149,7 +180,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function renderUsers (users) {
+  function loadImage (users) {
+    const imagePromises = users.map(async (user) => {
+      return new Promise(resolve => {
+        const img = new Image()
+        img.src = user.profileImage
+        img.onload = () => {
+          user.imageLoad = true
+          resolve(user)
+        }
+        img.onerror = () => {
+          user.imageLoad = false
+          resolve(user)
+        }
+      })
+    })
+    return Promise.all(imagePromises)
+  }
+
+  async function renderUsers (users) {
     if (users.length === 0) {
       userContainer.innerHTML = `
             <div class="new-user">
@@ -159,13 +208,15 @@ document.addEventListener('DOMContentLoaded', () => {
       return
     }
 
+    userContainer.innerHTML = ''
+
     users.forEach(user => {
       const userElement = document.createElement('div')
       userElement.classList.add('new-user')
 
       userElement.innerHTML = `
             <div class="data-user">
-              <img src="${user.profilePicture || 'path/to/default/image.jpg'}" alt="${user.username}">
+              <img src="${user.profileImage}" alt="${user.username}">
               <span class="username">${user.username}</span>
             </div>
             <i class="fas fa-plus-circle add-friend-btn"></i>
@@ -180,7 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Función para agregar amigo
-
   searchIcon.addEventListener('click', () => {
     searchUsers(searchInput.value)
   })
@@ -308,10 +358,8 @@ document.querySelector('#logout').addEventListener('click', async () => {
     })
 
     if (response.ok) {
-      console.log('Logout success')
+      localStorage.clear()
       window.location.href = '/login.html'
-      localStorage.removeItem('animationLoad')
-      localStorage.removeItem('profileImageUrl')
     } else {
       console.error('Error when logging out')
     }
@@ -351,4 +399,28 @@ function viewUserImage (element, imageUrl) {
       container.classList.remove('blurred')
     })
   })
+}
+
+// funciones de load o delay
+function delay (ms) {
+  return new Promise(resolve => { setTimeout(resolve, ms) })
+}
+
+function createAnimationLoad (container) {
+  const loader = document.createElement('div')
+  loader.classList.add('loader')
+  loader.innerHTML = `
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  `
+  container.appendChild(loader)
+  return loader
+}
+
+function removeAnimationLoad (container) {
+  const animationLoad = container.querySelector('.loader')
+  if (animationLoad) {
+    container.removeChild(animationLoad)
+  }
 }
