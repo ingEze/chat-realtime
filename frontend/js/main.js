@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // add friend
 const containerMain = document.querySelector('.container-main')
-const arraySolicitudes = []
+const arrayRequests = []
 async function addFriend (username) {
   try {
     const response = await fetch('/friends/add', {
@@ -279,34 +279,46 @@ async function addFriend (username) {
     const result = await response.json()
 
     if (response.ok) {
-      arraySolicitudes.push(result.data)
-      console.log('arraySolicitudes', arraySolicitudes)
+      arrayRequests.push(result.data)
     } else {
       console.log(result.message)
     }
   } catch (err) {
     console.error('Error adding friend', err)
   }
-}console.log('arraySolicitudes', arraySolicitudes)
+}
 
 // add friend container
 document.querySelector('.fa-user-plus.open').addEventListener('click', async () => {
   containerMain.innerHTML = ''
-  createRequestContainer()
+  createAnimationLoad(containerMain)
 
   try {
     const response = await fetch('/friends/requests', {
       method: 'GET',
-      credentials: 'include'
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      }
     })
 
     const data = await response.json()
-    console.log(data)
+    arrayRequests.length = 0
+
+    removeAnimationLoad(containerMain)
     if (response.ok) {
-      data.forEach(request => {
-        arraySolicitudes.push(request)
+      arrayRequests.push(...data.data)
+      arrayRequests.forEach(request => {
         createRequestContainer(request.username, request.timestamp, request.profileImage)
       })
+    }
+
+    if (arrayRequests.length === 0) {
+      containerMain.innerHTML = `
+            <div class="new-user">
+              <span class="user-error">No have friend requests</span>
+            </div>
+          `
     }
   } catch (err) {
     console.error('Error obtaining friend requests', err)
@@ -332,7 +344,15 @@ function createRequestContainer (username, timestamp, profileImage) {
 
   containerMain.insertBefore(requestsContainer, containerMain.firstChild)
 
-  return requestsContainer
+  const btnAccept = requestsContainer.querySelector('.btn-accept')
+  const btnReject = requestsContainer.querySelector('.btn-reject')
+
+  alertMessage(btnAccept, 'Friend request accepted')
+  alertMessage(btnReject, 'Friend request rejected')
+
+  btnAccept.addEventListener('click', async (event) => {
+    event.preventDefault()
+  })
 }
 
 // userTag
@@ -425,6 +445,19 @@ function createAnimationLoad (container) {
   `
   container.appendChild(loader)
   return loader
+}
+
+// alert
+function alertMessage (eventContainer, message) {
+  eventContainer.addEventListener('click', () => {
+    const alert = document.createElement('div')
+    alert.classList.add('alert')
+    alert.innerHTML = `
+        <p>${message}</p>
+    `
+    const body = document.body
+    body.appendChild(alert)
+  })
 }
 
 function removeAnimationLoad (container) {

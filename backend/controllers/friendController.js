@@ -35,4 +35,30 @@ export class FriendAdd {
       })
     }
   }
+
+  static async getFriendRequests (req, res) {
+    try {
+      const requesterId = req.user._id
+      if (!requesterId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Bad request'
+        })
+      }
+
+      const result = await FriendService.getFriendRequests(requesterId)
+      if (!result) {
+        return res.status(400).json({
+          success: false,
+          message: 'Error getting friend requests'
+        })
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Friend requests retrieved',
+        data: result
+      })
+    } catch (err) {}
+  }
 }
