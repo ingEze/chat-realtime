@@ -7,8 +7,8 @@ import { Search } from '../controllers/userController.js'
 const friendRouter = Router()
 
 friendRouter.post('/add', authSession, FriendAdd.sendFriendRequest)
-friendRouter.post('/accepted', authSession, FriendAdd.acceptedFriendRequest)
-friendRouter.get('/requests', authSession, FriendAdd.getPendingFriendRequests)
+friendRouter.post('/accepted', authSession)
+friendRouter.get('/requests', authSession)
 
 friendRouter.get('/search', authSession, Search.searchUsers)
 

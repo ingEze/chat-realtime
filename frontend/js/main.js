@@ -262,7 +262,9 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 })
 
-// Modificación del main.js
+// add friend
+const containerMain = document.querySelector('.container-main')
+const arraySolicitudes = []
 async function addFriend (username) {
   try {
     const response = await fetch('/friends/add', {
@@ -277,49 +279,60 @@ async function addFriend (username) {
     const result = await response.json()
 
     if (response.ok) {
-      console.log(result.message)
+      arraySolicitudes.push(result.data)
+      console.log('arraySolicitudes', arraySolicitudes)
     } else {
       console.log(result.message)
     }
-  } catch (error) {
-    console.error('Error al agregar amigo:', error)
-    console.log('No se pudo agregar al amigo')
+  } catch (err) {
+    console.error('Error adding friend', err)
   }
-}
+}console.log('arraySolicitudes', arraySolicitudes)
 
-// Función para cargar solicitudes pendientes
-async function loadFriendRequests () {
+// add friend container
+document.querySelector('.fa-user-plus.open').addEventListener('click', async () => {
+  containerMain.innerHTML = ''
+  createRequestContainer()
+
   try {
     const response = await fetch('/friends/requests', {
       method: 'GET',
       credentials: 'include'
     })
 
-    const result = await response.json()
-
+    const data = await response.json()
+    console.log(data)
     if (response.ok) {
-      renderFriendRequests(result.requests)
-    } else {
-      console.error('Error al cargar solicitudes')
+      data.forEach(request => {
+        arraySolicitudes.push(request)
+        createRequestContainer(request.username, request.timestamp, request.profileImage)
+      })
     }
-  } catch (error) {
-    console.error('Error de red:', error)
+  } catch (err) {
+    console.error('Error obtaining friend requests', err)
   }
-}
+})
 
-function renderFriendRequests (requests) {
-  const requestContainer = document.getElementById('friend-requests')
-  requestContainer.innerHTML = ''
+function createRequestContainer (username, timestamp, profileImage) {
+  const requestsContainer = document.createElement('form')
+  requestsContainer.classList.add('requests-container')
+  requestsContainer.innerHTML = `
+    <div class="request-card">
+          <img src="${profileImage}" alt="Perfil" class="profile-image">
+        <div class="request-info">
+          <div class="username">${username}</div>
+          <div class="timestamp">${timestamp}</div>
+        </div>
+        <div class="action-buttons">
+          <button type="submit" class="btn btn-accept" name="action" value="aceptar">Aceptar</button>
+          <button type="submit" class="btn btn-reject" name="action" value="rechazar">Rechazar</button>
+        </div>
+    </div>
+  `
 
-  requests.forEach(request => {
-    const requestElement = document.createElement('div')
-    requestElement.innerHTML = `
-      <img src="${request.requester.profilePicture}" alt="Perfil">
-      <span>${request.requester.username}</span>
-      <button onclick="acceptFriendRequest('${request._id}')">Aceptar</button>
-    `
-    requestContainer.appendChild(requestElement)
-  })
+  containerMain.insertBefore(requestsContainer, containerMain.firstChild)
+
+  return requestsContainer
 }
 
 // userTag
@@ -401,11 +414,7 @@ function viewUserImage (element, imageUrl) {
   })
 }
 
-// funciones de load o delay
-function delay (ms) {
-  return new Promise(resolve => { setTimeout(resolve, ms) })
-}
-
+// funcion loader
 function createAnimationLoad (container) {
   const loader = document.createElement('div')
   loader.classList.add('loader')

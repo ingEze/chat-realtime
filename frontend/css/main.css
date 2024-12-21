@@ -184,6 +184,7 @@ input[type="search"]::-webkit-search-cancel-button {
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
     padding-block: 1rem;
     background: var(--grey-dark);
     overflow: hidden;
@@ -192,13 +193,14 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .search-input {
     padding: .8rem .7rem;
+    margin-right: 1rem;
     border: none;
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     width: 100%;
-    max-width: 400px;
+    max-width: 350px;
     height: 100%;
     font-size: 1rem;
     outline: none;
@@ -216,6 +218,21 @@ input[type="search"]::-webkit-search-cancel-button {
     cursor: pointer;
     flex-shrink: 0;
     height: 100%;
+}
+
+.solicituds-button {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    position: relative;
+    flex: 1 ;
+    left: 0;
+    margin-left: 1rem;
+    cursor: pointer;
+}
+
+.solicituds-button i {
+    border-radius: 10px;
 }
 
 .container-main {
@@ -424,6 +441,79 @@ input[type="search"]::-webkit-search-cancel-button {
     color: #33383d;
 }
 
+
+/*  friend requests interface */
+.requests-container {
+    background: #2a2b2f;
+    border-radius: 0 0 10px 10px;
+    padding: 1rem;
+  }
+
+  .request-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: #1e1f23;
+    border-radius: 8px;
+    margin-bottom: .7rem;
+    transition: background 0.2s;
+  }
+
+  .request-card:hover {
+    background: #25262a;
+  }
+
+  .request-info {
+    flex: 1;
+    margin-left: .5rem;
+  }
+
+  .username {
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 0.25rem;
+  }
+
+  .timestamp {
+    font-size: 0.85rem;
+    color: #9ca3af;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+
+  .btn:hover {
+    opacity: 0.9;
+  }
+
+  .btn-accept {
+    background: #22c55e;
+    color: white;
+  }
+
+  .btn-reject {
+    background: #dc2626;
+    color: white;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #9ca3af;
+  }
+
+/* --------------- MEDIA QUERYS --------------- */
 
 
 @keyframes bounce {

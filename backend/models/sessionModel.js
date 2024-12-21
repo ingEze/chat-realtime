@@ -66,7 +66,8 @@ const userSchema = new mongoose.Schema({
       },
       message: 'Username already exists'
     }
-  }
+  },
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, {
   timestamps: true
 })
