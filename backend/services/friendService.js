@@ -83,4 +83,43 @@ export class FriendService {
       throw new Error(err.message || 'Error getting friend requests')
     }
   }
+
+  static async acceptedFriendRequest (requesterId, username) {
+    try {
+      const recipientId = await User.findOne({ username })
+      if (!recipientId) throw new Error('User not found')
+
+      const requester = await User.findById(requesterId)
+      if (!requester) throw new Error('User not found')
+
+      const existingRequest = await Friendship.findOne({
+        requester: requesterId,
+        recipient: recipientId._id,
+        status: 'pending'
+      })
+
+      if (!existingRequest) throw new Error('Request not found')
+
+      if (!requester.friends.includes(recipientId._id)) {
+        requester.friends.push(recipientId._id)
+        console.log('requester.friends', requester.friends)
+      }
+
+      if (!recipientId.friends.includes(requester._id)) {
+        recipientId.friends.push(requester._id)
+        console.log('recipientId.friends', recipientId.friends)
+      }
+
+      existingRequest.status = 'accepted'
+
+      await requester.save()
+      await recipientId.save()
+      await existingRequest.save()
+
+      return { requester, recipientId, existingRequest }
+    } catch (err) {
+      console.error('err in service', err.message)
+      throw new Error(err.message || 'Error accepting friend request')
+    }
+  }
 }

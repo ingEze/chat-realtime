@@ -264,6 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // add friend
 const containerMain = document.querySelector('.container-main')
+const arrayFriends = []
 const arrayRequests = []
 async function addFriend (username) {
   try {
@@ -277,6 +278,7 @@ async function addFriend (username) {
     })
 
     const result = await response.json()
+    console.log('result', result)
 
     if (response.ok) {
       arrayRequests.push(result.data)
@@ -347,11 +349,33 @@ function createRequestContainer (username, timestamp, profileImage) {
   const btnAccept = requestsContainer.querySelector('.btn-accept')
   const btnReject = requestsContainer.querySelector('.btn-reject')
 
-  alertMessage(btnAccept, 'Friend request accepted')
-  alertMessage(btnReject, 'Friend request rejected')
+  // alertMessage(btnReject, 'Friend request rejected')
 
   btnAccept.addEventListener('click', async (event) => {
     event.preventDefault()
+
+    try {
+      const response = await fetch('/friends/accepted', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username })
+      })
+
+      const data = await response.json()
+      console.log('data', data)
+
+      if (response.ok) {
+        alertMessage(btnAccept, 'You are now friends')
+        arrayFriends.push(data.data)
+      } else {
+        alertMessage(btnAccept, 'Failed to accept friend request')
+      }
+    } catch (err) {
+      console.error('Error accepting friend request', err)
+    }
   })
 }
 

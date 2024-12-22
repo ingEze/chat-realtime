@@ -1,6 +1,6 @@
 import { FriendService } from '../services/friendService.js'
 
-export class FriendAdd {
+export class FriendController {
   static async sendFriendRequest (req, res) {
     try {
       const { username } = req.body
@@ -60,5 +60,42 @@ export class FriendAdd {
         data: result
       })
     } catch (err) {}
+  }
+
+  static async acceptFriendRequest (req, res) {
+    try {
+      const { username } = req.body
+
+      const requesterId = req.user._id
+
+      if (!requesterId || !username) {
+        return res.status(400).json({
+          success: false,
+          message: 'Bad request'
+        })
+      }
+
+      const result = await FriendService.acceptedFriendRequest(requesterId, username)
+      console.log('result', result)
+
+      if (!result) {
+        res.status(400).json({
+          success: false,
+          message: 'Error accepting friend request'
+        })
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Friend request accepted',
+        data: result
+      })
+    } catch (err) {
+      console.error('error in controller', err.message)
+      res.status(500).json({
+        success: false,
+        message: 'Error accepting friend request'
+      })
+    }
   }
 }

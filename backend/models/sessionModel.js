@@ -58,9 +58,7 @@ const userSchema = new mongoose.Schema({
     default: null,
     validate: {
       validator: async function (username) {
-        if (!username) {
-          return false
-        }
+        if (!username) return true
         const existingUser = await mongoose.models.User.findOne({ username })
         return !existingUser
       },
