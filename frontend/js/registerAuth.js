@@ -2,49 +2,55 @@ document.querySelector('#btnRedirectionLogIn').addEventListener('click', () => {
   window.location.href = '/login.html'
 })
 
+document.querySelectorAll('.toggle-password').forEach(icon => {
+  icon.addEventListener('click', () => {
+    const input = icon.closest('.form-group').querySelector('input')
+    const inputType = input.getAttribute('type')
+
+    input.setAttribute('type', inputType === 'password' ? 'text' : 'password')
+
+    if (inputType === 'password') {
+      icon.classList.remove('fa-eye')
+      icon.classList.add('fa-eye-slash')
+    } else {
+      icon.classList.remove('fa-eye-slash')
+      icon.classList.add('fa-eye')
+    }
+  })
+})
+
 document.querySelector('#formContainer').addEventListener('submit', async (e) => {
   e.preventDefault()
 
   const userEmail = document.querySelector('#userEmail').value
   const userPassword = document.querySelector('#userPassword').value
   const confirmPassword = document.querySelector('#confirmPassword').value
+
   const passwordErrorMatch = document.querySelector('.password-error-match')
   const emailError = document.querySelector('.email-error')
-  const emptyFieldError = document.querySelector('.empty-field-error')
 
   passwordErrorMatch.classList.remove('active')
   emailError.classList.remove('active')
-  if (emptyFieldError) emptyFieldError.classList.remove('active')
-
-  if (!userEmail || !userPassword || !confirmPassword) {
-    if (!emptyFieldError) {
-      const formGroup = document.querySelector('.button-box')
-      const newError = document.createElement('p')
-      newError.classList.add('error-auth', 'empty-field-error')
-      newError.textContent = 'All fields are required'
-      formGroup.appendChild(newError)
-    }
-    return
-  }
 
   if (userPassword !== confirmPassword) {
     passwordErrorMatch.classList.add('active')
+    passwordErrorMatch.textContent = 'Passwords do not match'
     return
   }
 
   const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
   if (!emailPattern.test(userEmail)) {
     emailError.classList.add('active')
+    emailError.textContent = 'Invalid email format'
     return
   }
 
-  console.log('Sending data:', {
+  const data = {
     email: userEmail,
     password: userPassword
-  })
+  }
 
   try {
-    console.log('Making fetch request...')
     const response = await fetch('/auth/register', {
       method: 'POST',
       headers: {
@@ -52,8 +58,7 @@ document.querySelector('#formContainer').addEventListener('submit', async (e) =>
       },
       credentials: 'include',
       body: JSON.stringify({
-        email: userEmail,
-        password: userPassword
+        data
       })
     })
 
@@ -62,7 +67,8 @@ document.querySelector('#formContainer').addEventListener('submit', async (e) =>
       window.location.href = '/lastInstanseRegister.html'
     } else {
       const errorData = await response.json()
-      console.error('Registration failed', errorData)
+      emailError.classList.add('active')
+      emailError.textContent = errorData.message
     }
   } catch (err) {
     console.error('Error: ', err)

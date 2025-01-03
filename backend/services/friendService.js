@@ -102,18 +102,14 @@ export class FriendService {
 
       if (!requester.friends.includes(recipientId._id)) {
         requester.friends.push(recipientId._id)
-        console.log('requester.friends', requester.friends)
       }
 
       if (!recipientId.friends.includes(requester._id)) {
         recipientId.friends.push(requester._id)
-        console.log('recipientId.friends', recipientId.friends)
       }
 
       existingRequest.status = 'accepted'
 
-      await requester.save()
-      await recipientId.save()
       await existingRequest.save()
 
       return { requester, recipientId, existingRequest }

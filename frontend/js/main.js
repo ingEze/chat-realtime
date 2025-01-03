@@ -349,8 +349,6 @@ function createRequestContainer (username, timestamp, profileImage) {
   const btnAccept = requestsContainer.querySelector('.btn-accept')
   const btnReject = requestsContainer.querySelector('.btn-reject')
 
-  // alertMessage(btnReject, 'Friend request rejected')
-
   btnAccept.addEventListener('click', async (event) => {
     event.preventDefault()
 
@@ -368,13 +366,15 @@ function createRequestContainer (username, timestamp, profileImage) {
       console.log('data', data)
 
       if (response.ok) {
-        alertMessage(btnAccept, 'You are now friends')
         arrayFriends.push(data.data)
+        arrayRequests.length = 0
+        showAlertMessage('Friend request accepted', 3000)
       } else {
-        alertMessage(btnAccept, 'Failed to accept friend request')
+        showAlertMessage('Error accepting friend request', 3000)
       }
     } catch (err) {
       console.error('Error accepting friend request', err)
+      showAlertMessage('Error accepting friend request')
     }
   })
 }
@@ -471,22 +471,32 @@ function createAnimationLoad (container) {
   return loader
 }
 
-// alert
-function alertMessage (eventContainer, message) {
-  eventContainer.addEventListener('click', () => {
-    const alert = document.createElement('div')
-    alert.classList.add('alert')
-    alert.innerHTML = `
-        <p>${message}</p>
-    `
-    const body = document.body
-    body.appendChild(alert)
-  })
-}
-
 function removeAnimationLoad (container) {
   const animationLoad = container.querySelector('.loader')
   if (animationLoad) {
     container.removeChild(animationLoad)
   }
+}
+
+// alert message
+function showAlertMessage (message, duration) {
+  if (typeof message !== 'string') {
+    return console.error('The message must be a string')
+  }
+
+  const alert = document.createElement('div')
+  alert.classList.add('alert')
+  alert.innerHTML = `<p>${message}</p>`
+
+  document.body.appendChild(alert)
+
+  alert.style.animation = 'fadeIn 1s ease-in-out forwards'
+
+  setTimeout(() => {
+    alert.style.animation = 'fadeOut .5s ease-in-out forwards'
+
+    setTimeout(() => {
+      if (alert.parentNode) document.body.removeChild(alert)
+    }, 800)
+  }, duration || 1000)
 }

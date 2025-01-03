@@ -2,6 +2,19 @@ document.querySelector('#btnRedirectionSignUp').addEventListener('click', () => 
   window.location.href = '/register.html'
 })
 
+document.querySelector('.toggle-password').addEventListener('click', () => {
+  const type = document.querySelector('#userPassword').getAttribute('type') === 'password' ? 'text' : 'password'
+  document.querySelector('#userPassword').setAttribute('type', type)
+
+  if (type === 'password') {
+    document.querySelector('#togglePassword').classList.remove('fa-eye-slash')
+    document.querySelector('#togglePassword').classList.add('fa-eye')
+  } else {
+    document.querySelector('#togglePassword').classList.remove('fa-eye')
+    document.querySelector('#togglePassword').classList.add('fa-eye-slash')
+  }
+})
+
 document.querySelector('#formContainer').addEventListener('submit', async (e) => {
   e.preventDefault()
 
@@ -17,11 +30,13 @@ document.querySelector('#formContainer').addEventListener('submit', async (e) =>
 
   if (!userCredentialInput.value.trim()) {
     emailErrorElement.classList.add('active')
+    emailErrorElement.textContent = 'Email is required'
     isValid = false
   }
 
   if (!userPasswordInput.value.trim()) {
     passwordErrorElement.classList.add('active')
+    passwordErrorElement.textContent = 'Password is required'
     isValid = false
   } else if (userPasswordInput.value.length < 8) {
     passwordErrorElement.textContent = 'Password must be at least 8 characters'
@@ -50,7 +65,9 @@ document.querySelector('#formContainer').addEventListener('submit', async (e) =>
         window.location.href = '/index.html'
       } else {
         const errorData = await response.json()
-        console.error('Registration failed', errorData)
+
+        emailErrorElement.classList.add('active')
+        emailErrorElement.textContent = errorData.message
       }
     } catch (err) {
       console.error('Error: ', err)
