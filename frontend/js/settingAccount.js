@@ -41,6 +41,10 @@ async function handleFormSubmit () {
   const password = document.querySelector('#password')?.value
   const selectedOption = document.querySelector('.container-setting [id].select')
 
+  if (newValue || !selectedOption) {
+    throw new Error('No valid select option')
+  }
+
   try {
     let endpoint = ''
     let bodyData = {}
@@ -209,23 +213,10 @@ menuContainer.addEventListener('click', (e) => {
   }
 })
 
-// clase select
-menuContainer.addEventListener('click', (e) => {
-  const clickedItem = e.target.closest('[id]')
-
-  if (clickedItem) {
-    document.querySelectorAll('.container-setting [id]').forEach(item => {
-      item.classList.remove('select')
-    })
-  }
-  clickedItem.classList.add('select')
-})
-
 // change photo
 menuContainer.querySelector('#changePhoto').addEventListener('click', async () => {
   const cachedImageUrl = localStorage.getItem('profileImageUrl')
   settingContent.innerHTML = ''
-
   if (cachedImageUrl) {
     loadProfileImage(cachedImageUrl)
   } else {
@@ -237,9 +228,31 @@ menuContainer.querySelector('#changePhoto').addEventListener('click', async () =
   }
 })
 
-function loadProfileImage (photoUrl) {
+async function fetchRecoverUserImage () {
+  try {
+    const response = await fetch('/protected/user/profile-image', {
+      method: 'GET',
+      credentials: 'include'
+    })
+
+    console.log('response', response)
+
+    if (!response.ok) {
+      throw new Error(`Error HTTP! Status: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return data.imageUrl
+  } catch (err) {
+    console.error('Error al recuperar la imagen del usuario:', err)
+    return null
+  }
+}
+
+let photosLoaded = false
+async function loadProfileImage (photoUrl) {
   const containerSettingContent = document.querySelector('.container-setting-content')
-  const contentBox = document.createElement('from')
+  const contentBox = document.createElement('form')
   contentBox.classList.add('content-box', 'photo-selection-container')
   contentBox.innerHTML = `
     <h3 class="content-title">Select profile image</h3>
@@ -262,13 +275,24 @@ function loadProfileImage (photoUrl) {
   containerSettingContent.appendChild(contentBox)
 
   const currentPhotoImage = contentBox.querySelector('.current-photo img')
+  const photosGrid = contentBox.querySelector('#photosGrid')
 
   currentPhotoImage.addEventListener('click', () => {
-    const photosGrid = contentBox.querySelector('#photosGrid')
-    photosGrid.style.display = photosGrid.style.display === 'none' ? 'grid' : 'none'
+    togglePhotoGrid(photosGrid)
   })
 
-  createPhotoArea(contentBox)
+  if (!photosLoaded) {
+    await createPhotoArea(contentBox)
+    photosLoaded = true
+  }
+}
+
+function togglePhotoGrid (photosGrid) {
+  if (photosGrid.style.display === 'none') {
+    photosGrid.style.display = 'grid'
+  } else {
+    photosGrid.style.display = 'none'
+  }
 }
 
 // create element contentBox
@@ -282,78 +306,77 @@ async function createPhotoArea (contentBox) {
   photoGrid.style.display = 'none'
 
   currentPhoto.addEventListener('click', async () => {
-    try {
-      const response = await fetch('/auth/profile-images', {
-        method: 'GET',
-        credentials: 'include'
-      })
-
-      if (!response) {
-        console.error('Error  recover images:', response.statusText)
-        return null
-      }
-
-      const data = await response.json()
-      arrayImage = []
-
-      const handleImageSelection = async (imageId, imageUrl) => {
-        currentPhoto.src = imageUrl
-        createInputHidden.value = imageUrl
-        selectedPhotoId = imageId
-
-        const images = photoGrid.querySelectorAll('.photo-option')
-        images.forEach(img => {
-          img.classList.remove('selected')
-          if (img.dataset.imageId === imageId) {
-            img.classList.add('selected')
-          }
+    if (arrayImage.length === 0) {
+      try {
+        const response = await fetch('/auth/profile-images', {
+          method: 'GET',
+          credentials: 'include'
         })
 
-        btnSavePhoto.disabled = false
-        photoGrid.style.display = 'none'
-      }
+        if (!response) {
+          throw new Error(`Error HTTP! Status: ${response.status}`)
+        }
 
-      if (data.length > 0) {
+        const data = await response.json()
+        arrayImage = data
+
         data.forEach(photo => {
-          arrayImage.push(photo.dropboxUrl)
           const photoOption = document.createElement('div')
           photoOption.classList.add('photo-option')
           photoOption.dataset.imageId = photo._id
-          photoOption.innerHTML = `<img src="${photo.dropboxUrl}" alt="${photo.name}">`
-
+          photoOption.innerHTML = `
+            <img src="${photo.dropboxUrl}" alt="${photo.title}">
+          `
           photoOption.addEventListener('click', () => {
             handleImageSelection(photo._id, photo.dropboxUrl)
           })
-
           photoGrid.appendChild(photoOption)
         })
+      } catch (err) {
+        console.error('error: ', err.message)
       }
-      btnSavePhoto.addEventListener('click', async () => {
-        if (!selectedPhotoId) return
+    }
+    photoGrid.style.display = 'grid'
+  })
 
-        try {
-          const response = await fetch('/setting/update-profile-image', {
-            method: 'PATCH',
-            credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ profileImageId: selectedPhotoId })
-          })
+  const handleImageSelection = (imageId, imageUrl) => {
+    currentPhoto.src = imageUrl
+    createInputHidden.value = imageId
+    selectedPhotoId = imageId
 
-          if (response.ok) {
-            localStorage.removeItem('profileImageUrl')
-            localStorage.setItem('profileImageUrl', currentPhoto.src)
-            window.location.href = '/index.html'
-          } else {
-            console.error('Error updating the image')
-          }
-        } catch (err) {
-          console.error('Error saving the image', err.message)
-        }
+    const images = photoGrid.querySelectorAll('.photo-option')
+    images.forEach(img => {
+      img.classList.remove('selected')
+      if (img.dataset.imageId === imageId) {
+        img.classList.add('selected-image')
+      }
+    })
+    btnSavePhoto.disabled = false
+  }
+
+  btnSavePhoto.addEventListener('click', async () => {
+    if (!selectedPhotoId) return
+
+    try {
+      const response = await fetch('/setting/update-profile-image', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ profileImageId: selectedPhotoId })
       })
+
+      if (response.ok) {
+        localStorage.removeItem('profileImageUrl')
+        localStorage.setItem('profileImageUrl', currentPhoto.src)
+        window.location.href = '/index.html'
+      } else {
+        console.error('Error al actualizar la imagen de perfil')
+        throw new Error('Error al actualizar la imagen de perfil')
+      }
     } catch (err) {
-      console.error('error: ', err.message)
+      console.error('Error: ', err)
     }
   })
 }

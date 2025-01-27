@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.error('No token session, redirecting to login')
       window.location.href = '/notAuthorized.html'
     }
+    localStorage.removeItem('profileImageUrl')
   } catch (err) {
     console.error('Fatal error:', err)
     window.location.href = '/notAuthorized.html'

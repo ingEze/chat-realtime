@@ -7,11 +7,11 @@ document.querySelector('.toggle-password').addEventListener('click', () => {
   document.querySelector('#userPassword').setAttribute('type', type)
 
   if (type === 'password') {
-    document.querySelector('#togglePassword').classList.remove('fa-eye-slash')
-    document.querySelector('#togglePassword').classList.add('fa-eye')
+    document.querySelector('.toggle-password').classList.remove('fa-eye-slash')
+    document.querySelector('.toggle-password').classList.add('fa-eye')
   } else {
-    document.querySelector('#togglePassword').classList.remove('fa-eye')
-    document.querySelector('#togglePassword').classList.add('fa-eye-slash')
+    document.querySelector('.toggle-password').classList.remove('fa-eye')
+    document.querySelector('.toggle-password').classList.add('fa-eye-slash')
   }
 })
 

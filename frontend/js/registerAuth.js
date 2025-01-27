@@ -32,16 +32,22 @@ document.querySelector('#formContainer').addEventListener('submit', async (e) =>
   passwordErrorMatch.classList.remove('active')
   emailError.classList.remove('active')
 
+  const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
+  if (!emailPattern.test(userEmail)) {
+    emailError.classList.add('active')
+    emailError.textContent = 'Invalid email format'
+    return
+  }
+
   if (userPassword !== confirmPassword) {
     passwordErrorMatch.classList.add('active')
     passwordErrorMatch.textContent = 'Passwords do not match'
     return
   }
 
-  const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
-  if (!emailPattern.test(userEmail)) {
-    emailError.classList.add('active')
-    emailError.textContent = 'Invalid email format'
+  if (userPassword.length < 8) {
+    passwordErrorMatch.classList.add('active')
+    passwordErrorMatch.textContent = 'Password must be at least 8 characters'
     return
   }
 
@@ -57,9 +63,7 @@ document.querySelector('#formContainer').addEventListener('submit', async (e) =>
         'Content-Type': 'application/json'
       },
       credentials: 'include',
-      body: JSON.stringify({
-        data
-      })
+      body: JSON.stringify(data)
     })
 
     if (response.ok) {

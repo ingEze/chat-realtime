@@ -1,20 +1,20 @@
 const arrayImage = []
 
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    const response = await fetch('/auth/protected-username', {
-      method: 'GET',
-      credentials: 'include'
-    })
+// document.addEventListener('DOMContentLoaded', async () => {
+//   try {
+//     const response = await fetch('/auth/protected-username', {
+//       method: 'GET',
+//       credentials: 'include'
+//     })
 
-    if (!response.ok) {
-      console.error('User not authorized')
-      window.location.href = '/notAuthorized.html'
-    }
-  } catch (err) {
-    console.error('Error:', err)
-  }
-})
+//     if (!response.ok) {
+//       console.error('User not authorized')
+//       window.location.href = '/notAuthorized.html'
+//     }
+//   } catch (err) {
+//     console.error('Error:', err)
+//   }
+// })
 
 document.addEventListener('DOMContentLoaded', async () => {
   const loader = document.querySelector('.loader')
@@ -103,22 +103,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault()
 
     function usernameError (error) {
-      const formGroup = document.querySelector('.form-group')
-      const previousError = formGroup.querySelector('.error-auth')
+      const formGroup = document.querySelectorAll('.form-group')
+      const secondFormGroup = formGroup[1]
 
-      if (previousError) previousError.remove()
+      const existingError = secondFormGroup.nextElementSibling
 
+      if (existingError && existingError.classList.contains('error-auth')) {
+        existingError.classList.remove('active')
+      }
       const message = document.createElement('p')
       message.classList.add('error-auth')
       message.classList.add('active')
-      message.innerText = `Username ${error}`
-      formGroup.appendChild(message)
+      message.innerText = `${error}`
+      secondFormGroup.after(message)
     }
 
     const username = document.querySelector('#inputUsername').value
 
     if (username === '') {
-      usernameError('is not valid')
+      usernameError('Username is not valid')
+      return
+    }
+
+    if (username.length < 3 || username.length > 20) {
+      usernameError('Username must be between 3 and 20 characters')
       return
     }
 
@@ -152,7 +160,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('registrarion successful')
         window.location.href = '/login.html'
       } else {
-        console.error('Registration failed', data.message)
+        usernameError('Error: ' + data.message)
       }
     } catch (err) {
       console.error('Error: ', err)

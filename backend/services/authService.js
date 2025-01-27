@@ -7,6 +7,7 @@ import { SALT_ROUNDS } from '../../config/config.js'
 export const authService = {
   async register ({ email, password }) {
     if (!UserValidation.validateEmail(email)) throw new Error('Invalid gmail')
+
     if (!UserValidation.validatePassword(password)) throw new Error('Invalid password')
 
     const existingUser = await User.findOne({ email })
