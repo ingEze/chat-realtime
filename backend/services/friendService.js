@@ -86,36 +86,72 @@ export class FriendService {
 
   static async acceptedFriendRequest (requesterId, username) {
     try {
-      const recipientId = await User.findOne({ username })
-      if (!recipientId) throw new Error('User not found')
+      const recipient = await User.findOne({ username })
+      if (!recipient) throw new Error('User not found')
 
       const requester = await User.findById(requesterId)
       if (!requester) throw new Error('User not found')
 
       const existingRequest = await Friendship.findOne({
-        requester: requesterId,
-        recipient: recipientId._id,
-        status: 'pending'
+        $or: [
+          { requester: requester._id, recipient: recipient._id, status: 'pending' },
+          { requester: recipient._id, recipient: requester._id, status: 'pending' }
+        ]
       })
 
       if (!existingRequest) throw new Error('Request not found')
 
-      if (!requester.friends.includes(recipientId._id)) {
-        requester.friends.push(recipientId._id)
+      const [updateRequester, updateRecipient] = await Promise.all([
+        User.findByIdAndUpdate(
+          requester._id,
+          { $addToSet: { friends: recipient._id } },
+          { new: true }
+        ),
+        User.findByIdAndUpdate(
+          recipient._id,
+          { $addToSet: { friends: requester._id } },
+          { new: true }
+        )
+      ])
+
+      await Friendship.updateOne(
+        { _id: existingRequest._id },
+        { $set: { status: 'accepted' } }
+      )
+
+      return {
+        requester: updateRequester,
+        recipient: updateRecipient,
+        existingRequest
       }
-
-      if (!recipientId.friends.includes(requester._id)) {
-        recipientId.friends.push(requester._id)
-      }
-
-      existingRequest.status = 'accepted'
-
-      await existingRequest.save()
-
-      return { requester, recipientId, existingRequest }
     } catch (err) {
       console.error('err in service', err.message)
       throw new Error(err.message || 'Error accepting friend request')
+    }
+  }
+
+  static async getFriends (userId) {
+    try {
+      const user = await User.findById(userId)
+        .populate({
+          path: 'friends',
+          select: 'username profileImage',
+          populate: {
+            path: 'profileImage',
+            select: 'dropboxUrl'
+          }
+        })
+      if (!user) throw new Error('User not found')
+
+      const friends = user.friends.map(friend => ({
+        username: friend.username,
+        profileImage: friend.profileImage?.dropboxUrl || null
+      }))
+
+      return friends
+    } catch (err) {
+      console.error('err in service', err.message)
+      throw new Error(err.message || 'Error getting friends')
     }
   }
 }

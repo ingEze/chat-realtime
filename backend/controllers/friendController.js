@@ -76,7 +76,6 @@ export class FriendController {
       }
 
       const result = await FriendService.acceptedFriendRequest(requesterId, username)
-      console.log('result', result)
 
       if (!result) {
         res.status(400).json({
@@ -95,6 +94,38 @@ export class FriendController {
       res.status(500).json({
         success: false,
         message: 'Error accepting friend request'
+      })
+    }
+  }
+
+  static async getFriends (req, res) {
+    try {
+      const userId = req.user._id
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'User not authorized'
+        })
+      }
+
+      const result = await FriendService.getFriends(userId)
+      if (!result) {
+        return res.status(400).json({
+          success: false,
+          message: 'Error getting friends'
+        })
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Friends retrieved',
+        data: result
+      })
+    } catch (err) {
+      console.log('error in controller', err.message)
+      res.status(500).json({
+        success: false,
+        message: 'Error getting friends'
       })
     }
   }

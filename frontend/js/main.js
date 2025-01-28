@@ -279,7 +279,6 @@ async function addFriend (username) {
     })
 
     const result = await response.json()
-    console.log('result', result)
 
     if (response.ok) {
       arrayRequests.push(result.data)
@@ -363,13 +362,15 @@ function createRequestContainer (username, timestamp, profileImage) {
         body: JSON.stringify({ username })
       })
 
+      console.log('arrayFriends', arrayFriends)
+
       const data = await response.json()
-      console.log('data', data)
 
       if (response.ok) {
         arrayFriends.push(data.data)
         arrayRequests.length = 0
         showAlertMessage('Friend request accepted', 3000)
+        window.location.href = '/index.html'
       } else {
         showAlertMessage('Error accepting friend request', 3000)
       }
@@ -380,6 +381,48 @@ function createRequestContainer (username, timestamp, profileImage) {
   })
 }
 
+// chats
+// obtener del back time del ultimo mensaje y el mensaje en si
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const response = await fetch('/friends/user/friend', {
+      method: 'GET',
+      credentials: 'include'
+    })
+
+    const data = await response.json()
+    const result = data.data
+
+    if (response.ok) {
+      result.forEach(friend => {
+        createChat(friend.username, friend.profileImage, friend.timestamp)
+      })
+    }
+  } catch (err) {
+    console.error('Error obtaining friends', err.message)
+  }
+})
+
+function createChat (username, profileImage, timestamp) {
+  const chatsContainer = document.createElement('div')
+  chatsContainer.classList.add('chats-container')
+  chatsContainer.innerHTML = `
+    <div class="data-user">
+        <div class="chat-left">
+            <div class="container-photo">
+                <img src="${profileImage}" class="user-photo" alt="${username}">
+            </div>
+            <span class="chat-username">${username}</span>
+        </div>
+        <span class="message-date">${timestamp}</span>
+      </div>
+      <div class="chat-content">
+        <span class="last-message">This is the last message...</span>
+        <span class="new-message-indicator">•</span>
+    </div>
+    `
+  containerMain.appendChild(chatsContainer)
+}
 // userTag
 document.addEventListener('DOMContentLoaded', async () => {
   const userTag = document.querySelector('#userTag')
