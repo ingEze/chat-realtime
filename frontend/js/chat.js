@@ -1,3 +1,4 @@
+let currentUserId
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     const response = await fetch('/auth/protected', {
@@ -5,18 +6,31 @@ document.addEventListener('DOMContentLoaded', async () => {
       credentials: 'include'
     })
 
-    if (!response.ok) {
-      console.error('No token session, redirecting to login')
+    const data = await response.json()
+    console.log('full response data', JSON.stringify(data, null, 2))
+
+    if (!response.ok || !data.success) {
+      localStorage.removeItem('profileImageUrl')
       window.location.href = '/notAuthorized.html'
+      return
     }
-    localStorage.removeItem('profileImageUrl')
+
+    if (!data.user || !data.user._id) {
+      console.log('missing user data. Full data recived:', data)
+      throw new Error('No user data recived')
+    }
+
+    currentUserId = data.user._id
+    console.log('currentUserId', currentUserId)
   } catch (err) {
-    console.error('Fatal error:', err)
-    window.location.href = '/notAuthorized.html'
+    console.error('Fatal error:', err.message)
+    console.error('error stack', err.stack)
+    // window.location.href = '/notAuthorized.html'
   }
 })
 
-document.querySelector('.send-button').addEventListener('click', (e) => {
+const arraySendMessge = []
+document.querySelector('.send-button').addEventListener('click', async (e) => {
   e.preventDefault()
 
   const messageInput = document.querySelector('.chat-input')
@@ -30,8 +44,31 @@ document.querySelector('.send-button').addEventListener('click', (e) => {
 
   if (message) {
     // Aquí puedes agregar la lógica para enviar el mensaje a tu backend
-    console.log('Mensaje a enviar:', message)
+    try {
+      const params = new URLSearchParams(window.location.search)
+      const recipientUsername = params.get('username')
 
+      const response = await fetch('/chat/send/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          recipientUsername,
+          message
+        })
+      })
+
+      const { data } = await response.json()
+
+      const newMessage = { message: data.message }
+
+      if (response.ok) {
+        arraySendMessge.push(newMessage.message)
+      }
+    } catch (err) {
+      console.error('Error sending message', err.message)
+    }
     // Crear y agregar el nuevo mensaje al chat
     const chatMessages = document.querySelector('.chat-messages')
     const newMessage = createMessageElement(message)
@@ -63,32 +100,61 @@ document.querySelector('.chat-container').addEventListener('submit', (e) => {
   }
 })
 
-function createMessageElement (message) {
+function createMessageElement (message, senderId = currentUserId) {
   const now = new Date()
   const time = now.toLocaleTimeString('es-AR', {
     hour: '2-digit',
     minute: '2-digit'
   })
 
-  const chatMessages = document.querySelector('.chat-messages')
-
   const messageDiv = document.createElement('div')
-  messageDiv.className = 'message message-sent'
+  messageDiv.className = `message ${senderId === currentUserId ? 'message-sent' : 'message-received'}`
   messageDiv.innerHTML = `
         <div class="message-content">${message}</div>
         <div class="message-info">
-            <span class="message-time">${time}</span>   
+          <span class="message-time">${time}</span>   
+          ${senderId === currentUserId
+? `
             <div class="read-status">
-                <i class="fa fa-check check"></i>
-                <i class="fa fa-check check"></i>
-            </div>
+              <i class="fa fa-check check"></i>
+              <i class="fa fa-check check"></i>
+          </div>
+          `
+: ''}
         </div>
     `
 
-  chatMessages.appendChild(messageDiv)
-
   return messageDiv
 }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const response = await fetch('/chat/recent/message', {
+      method: 'GET',
+      credentials: 'include'
+    })
+
+    const data = await response.json()
+    const { data: messages } = data
+
+    if (response.ok) {
+      const chatMessages = document.querySelector('.chat-messages')
+      messages.forEach(msg => {
+        const messageElement = createMessageElement(msg.message)
+
+        if (msg.sender === currentUserId) {
+          messageElement.classList.add('message-sent')
+        } else {
+          messageElement.classList.add('message-received')
+        }
+
+        chatMessages.appendChild(messageElement)
+      })
+    }
+  } catch (err) {
+    console.error('Error recovery message', err.message)
+  }
+})
 
 document.addEventListener('DOMContentLoaded', () => {
   const chatMessages = document.querySelector('.chat-messages')
@@ -105,19 +171,24 @@ function preloadImage (url) {
 }
 
 // get username and profileImage
-const contentProfileImage = document.querySelector('#userPhoto')
 document.addEventListener('DOMContentLoaded', async () => {
+  const params = new URLSearchParams(window.location.search)
+  const usernameParams = params.get('username')
+  const contentProfileImage = document.querySelector('#userPhoto')
   const contentUsername = document.querySelector('#username')
   try {
-    const usertagResponse = await fetch('/protected/usertag', {
+    const usertagResponse = await fetch(`/chat/user/data?username=${usernameParams}`, {
       method: 'GET',
       credentials: 'include'
     })
 
-    const usertagData = await usertagResponse.text()
+    const usertagData = await usertagResponse.json()
+
+    const { data } = usertagData
+    const { username } = data
 
     if (usertagResponse.ok) {
-      contentUsername.textContent = usertagData
+      contentUsername.textContent = username
     }
 
     const storedImageUrl = localStorage.getItem('profileImageUrl')
@@ -127,29 +198,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (!storedImageUrl) {
-      await loadProfileImage()
+      try {
+        const userImageResponse = await fetch(`/chat/user/data?username=${usernameParams}`, {
+          method: 'GET',
+          credentials: 'include'
+        })
+
+        const userImageData = await userImageResponse.json()
+
+        const { data } = userImageData
+
+        const { profileImage } = data
+
+        if (userImageResponse.ok && profileImage) {
+          await preloadImage(profileImage)
+          contentProfileImage.src = profileImage
+          localStorage.setItem('profileImageUrl', userImageData.imageUrl)
+          localStorage.setItem('loadImage', 'true')
+        }
+      } catch (err) {
+        console.error('Error loading profile image:', err.message)
+      }
     }
   } catch (err) {
     console.error('Error obtaining username:', err.message)
   }
 })
 
-async function loadProfileImage () {
-  try {
-    const userImageResponse = await fetch('/protected/user/profile-image', {
-      method: 'GET',
-      credentials: 'include'
-    })
-
-    const userImageData = await userImageResponse.json()
-
-    if (userImageResponse.ok && userImageData.imageUrl) {
-      await preloadImage(userImageData.imageUrl)
-      contentProfileImage.src = userImageData.imageUrl
-      localStorage.setItem('profileImageUrl', userImageData.imageUrl)
-      localStorage.setItem('loadImage', 'true')
-    }
-  } catch (err) {
-    console.error('Error loading profile image:', err.message)
-  }
-}
+document.querySelector('.back-button').addEventListener('click', () => {
+  window.location.href = '/index.html'
+})

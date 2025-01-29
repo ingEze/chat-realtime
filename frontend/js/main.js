@@ -422,6 +422,13 @@ function createChat (username, profileImage, timestamp) {
     </div>
     `
   containerMain.appendChild(chatsContainer)
+
+  containerMain.querySelectorAll('.chats-container').forEach(chat => {
+    chat.addEventListener('click', () => {
+      const username = chat.querySelector('.chat-username').textContent
+      window.location.href = `/chat.html?username=${username}`
+    })
+  })
 }
 // userTag
 document.addEventListener('DOMContentLoaded', async () => {

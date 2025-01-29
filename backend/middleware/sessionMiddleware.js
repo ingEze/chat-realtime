@@ -61,15 +61,43 @@ export const secondInstanceRegister = async (req, res, next) => {
 export const routeProtected = async (req, res, next) => {
   const sessionToken = req.cookies.session
 
-  const decoded = JwtService.verifySessionToken(sessionToken)
-
-  if (!decoded) {
-    res.status(401).json({
+  if (!sessionToken) {
+    return res.status(401).json({
       success: false,
-      message: 'User not authorized'
+      message: 'No session token'
     })
   }
-  next()
+
+  try {
+    const decoded = JwtService.verifySessionToken(sessionToken)
+    const user = await User.findById(decoded.userId)
+      .select('-password -__v')
+      .lean()
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      })
+    }
+
+    console.log('user beign sent', user)
+
+    return res.status(200).json({
+      success: true,
+      message: 'User authorized',
+      user: {
+        _id: user._id,
+        username: user.username
+      }
+    })
+  } catch (err) {
+    console.error('routeProtected error:', err.message)
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid session'
+    })
+  }
 }
 
 export const isAdmin = (req, res, next) => {

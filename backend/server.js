@@ -9,16 +9,19 @@ import authRouter from './routes/authRoutes.js'
 import friendRouter from './routes/friendRoutes.js'
 import settingRouter from './routes/settingRoutes.js'
 import protectedUserRouter from './routes/protectedUser.js'
+import chatRouter from './routes/messageRoutes.js'
 
 const app = express()
 app.use(cookieParser())
 
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 app.use(corsMiddleware)
 app.use(express.static('frontend'))
 
 app.use('/auth', authRouter)
 app.use('/friends', friendRouter)
+app.use('/chat', chatRouter)
 app.use('/setting', settingRouter)
 app.use('/protected', protectedUserRouter)
 
