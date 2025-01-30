@@ -4,8 +4,6 @@ import { UserValidation } from '../utils/validation.js'
 
 export class AuthController {
   static async register (req, res) {
-    console.log('Register endpoint hit')
-    console.log('Request body:', req.body)
     try {
       let { email, password } = req.body
       password = String(password)

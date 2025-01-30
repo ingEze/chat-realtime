@@ -1,13 +1,12 @@
 let currentUserId
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const response = await fetch('/auth/protected', {
+    const response = await fetch('/protected/user/data', {
       method: 'GET',
       credentials: 'include'
     })
 
     const data = await response.json()
-    console.log('full response data', JSON.stringify(data, null, 2))
 
     if (!response.ok || !data.success) {
       localStorage.removeItem('profileImageUrl')
@@ -21,11 +20,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     currentUserId = data.user._id
-    console.log('currentUserId', currentUserId)
   } catch (err) {
     console.error('Fatal error:', err.message)
     console.error('error stack', err.stack)
-    // window.location.href = '/notAuthorized.html'
+    window.location.href = '/notAuthorized.html'
   }
 })
 
@@ -34,16 +32,9 @@ document.querySelector('.send-button').addEventListener('click', async (e) => {
   e.preventDefault()
 
   const messageInput = document.querySelector('.chat-input')
-
-  if (!messageInput) {
-    console.error('No se encontró el input con la clase .chat-input')
-    return
-  }
-
   const message = messageInput.value.trim()
 
   if (message) {
-    // Aquí puedes agregar la lógica para enviar el mensaje a tu backend
     try {
       const params = new URLSearchParams(window.location.search)
       const recipientUsername = params.get('username')
@@ -69,15 +60,12 @@ document.querySelector('.send-button').addEventListener('click', async (e) => {
     } catch (err) {
       console.error('Error sending message', err.message)
     }
-    // Crear y agregar el nuevo mensaje al chat
     const chatMessages = document.querySelector('.chat-messages')
     const newMessage = createMessageElement(message)
     chatMessages.appendChild(newMessage)
 
-    // Limpiar el input
     messageInput.value = ''
 
-    // Scroll al último mensaje
     chatMessages.scrollTop = chatMessages.scrollHeight
   }
 })
@@ -92,27 +80,19 @@ document.querySelector('.chat-container').addEventListener('submit', (e) => {
     const newMessage = createMessageElement(message)
     chatMessages.appendChild(newMessage)
 
-    // Limpiar el input
     messageInput.value = ''
 
-    // Scroll al último mensaje
     chatMessages.scrollTop = chatMessages.scrollHeight
   }
 })
 
-function createMessageElement (message, senderId = currentUserId) {
-  const now = new Date()
-  const time = now.toLocaleTimeString('es-AR', {
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-
+function createMessageElement (message, senderId = currentUserId, timestamp) {
   const messageDiv = document.createElement('div')
   messageDiv.className = `message ${senderId === currentUserId ? 'message-sent' : 'message-received'}`
   messageDiv.innerHTML = `
         <div class="message-content">${message}</div>
         <div class="message-info">
-          <span class="message-time">${time}</span>   
+          <span class="message-time">${timestamp}</span>   
           ${senderId === currentUserId
 ? `
             <div class="read-status">
@@ -135,12 +115,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     })
 
     const data = await response.json()
-    const { data: messages } = data
-
+    const { resultMap, timestamp } = data.data
     if (response.ok) {
       const chatMessages = document.querySelector('.chat-messages')
-      messages.forEach(msg => {
-        const messageElement = createMessageElement(msg.message)
+      resultMap.forEach((msg, index) => {
+        const time = timestamp[index] || 'N/A'
+        const messageElement = createMessageElement(msg.message, undefined, time)
 
         if (msg.sender === currentUserId) {
           messageElement.classList.add('message-sent')
@@ -192,7 +172,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const storedImageUrl = localStorage.getItem('profileImageUrl')
-
     if (storedImageUrl) {
       contentProfileImage.src = storedImageUrl
     }
@@ -213,7 +192,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (userImageResponse.ok && profileImage) {
           await preloadImage(profileImage)
           contentProfileImage.src = profileImage
-          localStorage.setItem('profileImageUrl', userImageData.imageUrl)
+          localStorage.setItem('profileImageUrl', profileImage)
           localStorage.setItem('loadImage', 'true')
         }
       } catch (err) {

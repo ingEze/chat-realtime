@@ -51,12 +51,26 @@ export class ChatController {
         })
       }
 
+      const resultMap = result.map(msg => ({
+        message: msg.message,
+        sender: msg.sender
+      }))
+      // console.log('resultMap', resultMap)
+
+      const timestamp = result.map(msg => msg.timestamp)
+      const optionsTimestamp = { hour: '2-digit', minute: '2-digit', hour12: true }
+      const formattedTime = timestamp.map(date => date.toLocaleTimeString('en-US', optionsTimestamp))
+
       res.status(200).json({
         status: true,
         message: 'Recent messages retrieved',
-        data: result
+        data: {
+          resultMap,
+          timestamp: formattedTime
+        }
       })
     } catch (err) {
+      console.error('Error in getRecentMessages(controller):', err.message)
       res.status(500).json({
         success: false,
         message: 'Error getting recent messages',

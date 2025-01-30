@@ -39,7 +39,8 @@ export class ChatService {
       const messages = chat.map(chat => ({
         message: chat.message,
         sender: chat.sender._id,
-        recipient: chat.recipient._id
+        recipient: chat.recipient._id,
+        timestamp: chat.timestamp
       }))
 
       return messages

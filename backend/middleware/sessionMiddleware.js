@@ -81,8 +81,6 @@ export const routeProtected = async (req, res, next) => {
       })
     }
 
-    console.log('user beign sent', user)
-
     return res.status(200).json({
       success: true,
       message: 'User authorized',
