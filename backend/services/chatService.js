@@ -26,13 +26,18 @@ export class ChatService {
     }
   }
 
-  static async getRecentMessages (userId) {
+  static async getRecentMessages (userId, recipient) {
     try {
       const user = await User.findById(userId)
+      if (!user) throw new Error('User not found')
+
+      const recipientUser = await User.findOne({ username: recipient })
+      if (!recipientUser) throw new Error('Recipient user not found')
+
       const chat = await Chat.find({
         $or: [
-          { sender: user._id },
-          { recipient: user._id }
+          { sender: user._id, recipient: recipientUser._id },
+          { sender: recipientUser._id, recipient: user._id }
         ]
       }).populate('sender recipient')
 
@@ -51,6 +56,7 @@ export class ChatService {
   }
 
   static async sendMessage ({ sender, recipientUsername, message }) {
+    // console.log('mensaje enviado:', message)
     try {
       if (!sender || !recipientUsername || !message) throw new Error('Missing required parameters')
 

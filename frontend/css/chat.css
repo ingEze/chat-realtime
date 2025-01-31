@@ -168,6 +168,19 @@ body {
     margin-top: 2px;
 }
 
+.alert {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    background-color: #ff000080;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    z-index: 9999;
+}
+
 /* Media Queries para diferentes tamaños de pantalla */
 @media (min-width: 768px) {
     .chat-container {

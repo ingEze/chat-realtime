@@ -7,7 +7,7 @@ const chatRouter = Router()
 
 chatRouter.get('/user/data', authSession, ChatController.getUserData)
 
-chatRouter.get('/recent/message', authSession, ChatController.getRecentMessages)
+chatRouter.post('/recent/message', authSession, ChatController.getRecentMessages)
 chatRouter.post('/send/message', authSession, ChatController.sendMessage)
 
 export default chatRouter
