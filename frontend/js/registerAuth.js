@@ -1,5 +1,5 @@
 document.querySelector('#btnRedirectionLogIn').addEventListener('click', () => {
-  window.location.href = '/login.html'
+  window.location.href = '/public/login.html'
 })
 
 document.querySelectorAll('.toggle-password').forEach(icon => {
@@ -68,13 +68,13 @@ document.querySelector('#formContainer').addEventListener('submit', async (e) =>
 
     if (response.ok) {
       console.log('Redireccion lastInstanseRegister.html')
-      window.location.href = '/lastInstanseRegister.html'
+      window.location.href = '/public/lastInstanseRegister.html'
     } else {
       const errorData = await response.json()
       emailError.classList.add('active')
       emailError.textContent = errorData.message
     }
   } catch (err) {
-    console.error('Error: ', err)
+    console.error('Error: ', err.message)
   }
 })

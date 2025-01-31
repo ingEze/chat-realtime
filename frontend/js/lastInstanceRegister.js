@@ -1,20 +1,20 @@
 const arrayImage = []
 
-// document.addEventListener('DOMContentLoaded', async () => {
-//   try {
-//     const response = await fetch('/auth/protected-username', {
-//       method: 'GET',
-//       credentials: 'include'
-//     })
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const response = await fetch('/auth/protected-username', {
+      method: 'GET',
+      credentials: 'include'
+    })
 
-//     if (!response.ok) {
-//       console.error('User not authorized')
-//       window.location.href = '/notAuthorized.html'
-//     }
-//   } catch (err) {
-//     console.error('Error:', err)
-//   }
-// })
+    if (!response.ok) {
+      console.error('User not authorized')
+      window.location.href = '/public/notAuthorized.html'
+    }
+  } catch (err) {
+    console.error('Error:', err.message)
+  }
+})
 
 document.addEventListener('DOMContentLoaded', async () => {
   const loader = document.querySelector('.loader')

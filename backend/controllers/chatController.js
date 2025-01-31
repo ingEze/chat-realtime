@@ -55,7 +55,6 @@ export class ChatController {
         message: msg.message,
         sender: msg.sender
       }))
-      // console.log('resultMap', resultMap)
 
       const timestamp = result.map(msg => msg.timestamp)
       const optionsTimestamp = { hour: '2-digit', minute: '2-digit', hour12: true }
@@ -82,8 +81,8 @@ export class ChatController {
   static async sendMessage (req, res) {
     try {
       const userId = req.user._id
-      if (!userId) {
-        return res.stauts(401).json({
+      if (!userId || !req.user._id) {
+        return res.status(401).json({
           success: false,
           message: 'User not authorized'
         })
@@ -105,14 +104,14 @@ export class ChatController {
         })
       }
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: 'Message sent',
         data: { message: result.message }
       })
     } catch (err) {
       console.error('Error in sendMessage(controller):', err.message)
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: 'Error sending message'
       })

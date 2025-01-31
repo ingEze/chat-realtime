@@ -1,5 +1,5 @@
 document.querySelector('#btnRedirectionSignUp').addEventListener('click', () => {
-  window.location.href = '/register.html'
+  window.location.href = '/public/register.html'
 })
 
 document.querySelector('.toggle-password').addEventListener('click', () => {
@@ -62,7 +62,7 @@ document.querySelector('#formContainer').addEventListener('submit', async (e) =>
 
       if (response.ok) {
         console.log('Login success')
-        window.location.href = '/index.html'
+        window.location.href = '/public/index.html'
       } else {
         const errorData = await response.json()
 

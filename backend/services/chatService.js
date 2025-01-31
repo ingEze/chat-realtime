@@ -45,13 +45,15 @@ export class ChatService {
 
       return messages
     } catch (err) {
-      console.error('Error in getRecentMessages:', err)
-      throw new Error('Error sending message', err)
+      console.error('Error in getRecentMessages:', err.message)
+      throw new Error('Error sending message', err.message)
     }
   }
 
   static async sendMessage ({ sender, recipientUsername, message }) {
     try {
+      if (!sender || !recipientUsername || !message) throw new Error('Missing required parameters')
+
       const senderUser = await User.findById(sender)
       if (!senderUser) throw new Error('Sender user not found')
 
@@ -68,7 +70,7 @@ export class ChatService {
       return newChat
     } catch (err) {
       console.error('Error in sendMessage(service):', err.message)
-      throw new Error('Error sending message', err)
+      throw new Error('Error sending message', err.message)
     }
   }
 }

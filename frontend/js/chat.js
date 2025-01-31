@@ -1,5 +1,120 @@
-let currentUserId
+const socket = io()
+
+class ChatSocket {
+  constructor () {
+    this.socket = socket
+    this.currentUser = null
+    this.initalize()
+  }
+
+  initalize () {
+    this.socket.on('connect', () => {
+      console.log('Connected to server')
+    })
+
+    this.socket.on('receiveMessage', (message) => {
+      this.handleIncomingMessage(message)
+    })
+
+    this.socket.on('disconnect', () => {
+      console.log('Disconnected from server')
+    })
+  }
+
+  joinChat (recipient) {
+    if (!this.currentUser) {
+      console.log('no user connected')
+      return
+    }
+
+    this.socket.emit('joinChat', {
+      sender: this.currentUser,
+      recipient
+    })
+  }
+
+  sendMessage (recipient, message) {
+    if (!this.currentUser) {
+      console.error('No user connected')
+      return
+    }
+
+    this.socket.emit('sendMessage', {
+      sender: this.currentUser,
+      recipient,
+      message
+    })
+  }
+
+  handleIncomingMessage (message) {
+    const chatMessages = document.querySelector('.chat-messages')
+    if (!chatMessages) return
+
+    const messageElement = this.createMessageElement(
+      message.message,
+      message.sender,
+      new Date(message.timestamp).toLocaleTimeString()
+    )
+
+    chatMessages.appendChild(messageElement)
+    chatMessages.scrollTop = chatMessages.scrollHeight
+  }
+
+  createMessageElement (message, senderId, timestamp) {
+    const messageDiv = document.createElement('div')
+    messageDiv.className = `message ${senderId === this.currentUser ? 'message-sent' : 'message-received'}`
+
+    messageDiv.innerHTML = `
+      <div class="message-content">${message}</div>
+      <div class="message-info">
+        <span class="message-time">${timestamp}</span>
+        ${senderId === this.currentUser
+          ? `<div class="read-status">
+               <i class="fa fa-check check"></i>
+               <i class="fa fa-check check"></i>
+             </div>`
+          : ''}
+      </div>
+    `
+
+    return messageDiv
+  }
+
+  setCurrentUser (userId) {
+    this.currentUser = userId
+  }
+
+  async loadRecentMessages () {
+    try {
+      const response = await fetch('/chat/recent/message', {
+        method: 'GET',
+        credentials: 'include'
+      })
+
+      const data = await response.json()
+      const { resultMap, timestamp } = data.data
+      if (response.ok) {
+        const chatMessages = document.querySelector('.chat-messages')
+        resultMap.forEach((msg, index) => {
+          const time = timestamp[index] || 'N/A'
+          const messageElement = this.createMessageElement(
+            msg.message,
+            msg.sender,
+            time
+          )
+          chatMessages.appendChild(messageElement)
+        })
+        chatMessages.scrollTop = chatMessages.scrollHeight
+      }
+    } catch (err) {
+      console.error('Error recovery message', err.message)
+    }
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+  const chat = new ChatSocket()
+
   try {
     const response = await fetch('/protected/user/data', {
       method: 'GET',
@@ -7,66 +122,51 @@ document.addEventListener('DOMContentLoaded', async () => {
     })
 
     const data = await response.json()
-
     if (!response.ok || !data.success) {
       localStorage.removeItem('profileImageUrl')
       window.location.href = '/notAuthorized.html'
-      return
     }
 
-    if (!data.user || !data.user._id) {
-      console.log('missing user data. Full data recived:', data)
-      throw new Error('No user data recived')
+    chat.setCurrentUser(data.user._id)
+
+    const params = new URLSearchParams(window.location.search)
+    const recipientUsername = params.get('username')
+
+    if (recipientUsername) {
+      chat.joinChat(recipientUsername)
     }
 
-    currentUserId = data.user._id
+    document.querySelector('.send-button').addEventListener('click', async (e) => {
+      e.preventDefault()
+      const messageInput = document.querySelector('.chat-input')
+      const message = messageInput.value.trim()
+
+      if (message && recipientUsername) {
+        try {
+          await fetch('/chat/send/message', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              recipientUsername,
+              message
+            })
+          })
+
+          if (response.ok) {
+            chat.sendMessage(recipientUsername, { message })
+            messageInput.value = ''
+          }
+        } catch (err) {
+          console.error('Error sending message', err.message)
+        }
+      }
+    })
   } catch (err) {
     console.error('Fatal error:', err.message)
-    console.error('error stack', err.stack)
     window.location.href = '/notAuthorized.html'
-  }
-})
-
-const arraySendMessge = []
-document.querySelector('.send-button').addEventListener('click', async (e) => {
-  e.preventDefault()
-
-  const messageInput = document.querySelector('.chat-input')
-  const message = messageInput.value.trim()
-
-  if (message) {
-    try {
-      const params = new URLSearchParams(window.location.search)
-      const recipientUsername = params.get('username')
-
-      const response = await fetch('/chat/send/message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          recipientUsername,
-          message
-        })
-      })
-
-      const { data } = await response.json()
-
-      const newMessage = { message: data.message }
-
-      if (response.ok) {
-        arraySendMessge.push(newMessage.message)
-      }
-    } catch (err) {
-      console.error('Error sending message', err.message)
-    }
-    const chatMessages = document.querySelector('.chat-messages')
-    const newMessage = createMessageElement(message)
-    chatMessages.appendChild(newMessage)
-
-    messageInput.value = ''
-
-    chatMessages.scrollTop = chatMessages.scrollHeight
   }
 })
 
@@ -83,56 +183,6 @@ document.querySelector('.chat-container').addEventListener('submit', (e) => {
     messageInput.value = ''
 
     chatMessages.scrollTop = chatMessages.scrollHeight
-  }
-})
-
-function createMessageElement (message, senderId = currentUserId, timestamp) {
-  const messageDiv = document.createElement('div')
-  messageDiv.className = `message ${senderId === currentUserId ? 'message-sent' : 'message-received'}`
-  messageDiv.innerHTML = `
-        <div class="message-content">${message}</div>
-        <div class="message-info">
-          <span class="message-time">${timestamp}</span>   
-          ${senderId === currentUserId
-? `
-            <div class="read-status">
-              <i class="fa fa-check check"></i>
-              <i class="fa fa-check check"></i>
-          </div>
-          `
-: ''}
-        </div>
-    `
-
-  return messageDiv
-}
-
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    const response = await fetch('/chat/recent/message', {
-      method: 'GET',
-      credentials: 'include'
-    })
-
-    const data = await response.json()
-    const { resultMap, timestamp } = data.data
-    if (response.ok) {
-      const chatMessages = document.querySelector('.chat-messages')
-      resultMap.forEach((msg, index) => {
-        const time = timestamp[index] || 'N/A'
-        const messageElement = createMessageElement(msg.message, undefined, time)
-
-        if (msg.sender === currentUserId) {
-          messageElement.classList.add('message-sent')
-        } else {
-          messageElement.classList.add('message-received')
-        }
-
-        chatMessages.appendChild(messageElement)
-      })
-    }
-  } catch (err) {
-    console.error('Error recovery message', err.message)
   }
 })
 
@@ -171,7 +221,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       contentUsername.textContent = username
     }
 
-    const storedImageUrl = localStorage.getItem('profileImageUrl')
+    const storedImageUrl = localStorage.getItem('friendProfileImage')
     if (storedImageUrl) {
       contentProfileImage.src = storedImageUrl
     }
@@ -192,7 +242,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (userImageResponse.ok && profileImage) {
           await preloadImage(profileImage)
           contentProfileImage.src = profileImage
-          localStorage.setItem('profileImageUrl', profileImage)
+          localStorage.setItem('friendProfileImage', profileImage)
           localStorage.setItem('loadImage', 'true')
         }
       } catch (err) {
@@ -205,5 +255,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 })
 
 document.querySelector('.back-button').addEventListener('click', () => {
-  window.location.href = '/index.html'
+  window.location.href = '/public/index.html'
+  localStorage.removeItem('friendProfileImage')
 })
