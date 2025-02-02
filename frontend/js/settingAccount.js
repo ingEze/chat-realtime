@@ -1,7 +1,7 @@
 let arrayImage = []
 
 document.querySelector('#redirectHome').addEventListener('click', () => {
-  window.location.href = '/index.html'
+  window.location.href = '/public/index.html'
 })
 
 // routh protected
@@ -14,11 +14,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!response.ok) {
       console.error('No session token')
-      window.location.href = '/notAuthorized.html'
+      window.location.href = '/public/notAuthorized.html'
     }
   } catch (err) {
     console.error('Fatal error:', err)
-    window.location.href = '/notAuthorized.html'
+    window.location.href = '/public/notAuthorized.html'
   }
 })
 // load option selected
@@ -469,7 +469,7 @@ menuContainer.querySelector('#deleteAccount').addEventListener('click', () => {
         console.log('Delete account successful')
         window.location.replace(result.redirectUrl)
       } else {
-        window.location.href = '/login.html'
+        window.location.href = '/public/login.html'
       }
     } catch (err) {
       console.error('Error delete account', err)

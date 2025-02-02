@@ -116,10 +116,19 @@ export class FriendController {
         })
       }
 
+      const resultFormatted = result.map(friend => ({
+        ...friend,
+        timestamp: new Date(friend.timestamp).toLocaleString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        })
+      }))
+      console.log('resultFormatted', resultFormatted)
       res.status(200).json({
         success: true,
         message: 'Friends retrieved',
-        data: result
+        data: resultFormatted
       })
     } catch (err) {
       console.log('error in controller', err.message)

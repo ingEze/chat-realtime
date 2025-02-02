@@ -3,6 +3,7 @@ import { ACCEPTED_ORIGINS } from '../config/cors.js'
 import { ChatService } from './services/chatService.js'
 
 let io
+const userSockets = new Map()
 
 const initSocket = (server) => {
   io = new Server(server, {
@@ -17,9 +18,42 @@ const initSocket = (server) => {
   io.on('connection', (socket) => {
     console.log('User connected', socket.id)
 
-    socket.on('joinChat', ({ sender, recipient }) => {
-      const room = [sender, recipient].sort().join('-')
-      socket.join(room)
+    socket.on('joinChat', async ({ sender, recipient }) => {
+      console.log('recipient', recipient)
+      try {
+        const senderUser = await ChatService.getUsernameById(sender)
+        if (!senderUser) {
+          throw new Error('Sender user not found')
+        }
+
+        userSockets.set(senderUser.username, socket.id)
+
+        const recipientUser = await ChatService.getUserData(recipient)
+        if (!recipientUser) {
+          throw new Error('Recipient user not found')
+        }
+
+        if (!senderUser.username || !recipientUser.username) {
+          throw new Error('Invalid usernames for chat room')
+        }
+
+        const room = [senderUser.username, recipientUser.username].sort().join('-')
+        socket.join(room)
+        console.log(`User ${senderUser.username} joined room ${room}`)
+
+        const recipientSocketId = userSockets.get(recipientUser.username)
+        if (recipientSocketId) {
+          const recipientSocketObj = io.sockets.sockets.get(recipientSocketId)
+          if (recipientSocketObj) {
+            recipientSocketObj.join(room)
+            console.log(`User ${recipientUser.username} joined room ${room}`)
+          }
+        }
+        socket.emit('joinedChat', { room })
+      } catch (err) {
+        console.error('Error in joinChat socket:', err)
+        socket.emit('chatError', { message: 'Error joining chat' })
+      }
     })
 
     socket.on('sendMessage', async ({ sender, recipient, message }) => {
@@ -27,25 +61,47 @@ const initSocket = (server) => {
         const savedMessage = await ChatService.sendMessage({
           sender,
           recipientUsername: recipient,
-          message: message.message
+          message: typeof message === 'string' ? message : message.message
+        })
+
+        const timestampFormatted = new Date(savedMessage.timestamp).toLocaleString('en-US', {
+          hour: 'numeric',
+          minute: 'numeric',
+          hour12: true
         })
 
         if (savedMessage) {
-          const room = [sender, recipient].sort().join('-')
-          io.to(room).emit('receiveMessage', {
+          const senderUser = await ChatService.getUsernameById(sender)
+          const recipientUser = await ChatService.getUserDataById(recipient)
+
+          const room = [senderUser.username, recipientUser.username].sort().join('-')
+
+          io.in(room).emit('receiveMessage', {
             message: savedMessage.message,
             sender: savedMessage.sender,
-            timestamp: savedMessage.timestamp
+            recipient: savedMessage.recipient,
+            timestamp: timestampFormatted
           })
+
+          const roomMembers = io.sockets.adapter.rooms.get(room)
+          console.log(`Room ${room} members: `, roomMembers ? Array.from(roomMembers) : 'No members')
+        } else {
+          console.error('Message not saved')
         }
       } catch (err) {
-        console.error('Error in sendMessage socket:', err)
+        console.error('Error in sendMessage socket:', err.message)
         socket.emit('messageError', { success: false, message: err.message })
       }
     })
 
     socket.on('disconnect', () => {
-      console.log('User disconnected', socket.id)
+      for (const [username, socketId] of userSockets.entries()) {
+        if (socketId === socket.id) {
+          userSockets.delete(username)
+          console.log(`User ${username} disconnected`)
+          break
+        }
+      }
     })
   })
   return io

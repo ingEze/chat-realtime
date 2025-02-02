@@ -1,63 +1,113 @@
-const socket = io()
-
 class ChatSocket {
   constructor () {
-    this.socket = socket
+    this.socket = io()
     this.currentUser = null
-    this.initalize()
+    this.currentRoom = null
+    this.recipient = null
+    this.recipientId = null
+    this.initialize()
   }
 
-  initalize () {
+  initialize () {
     this.socket.on('connect', () => {
       console.log('Connected to server')
+      if (this.currentUser && this.recipient) this.joinChat(this.recipient)
     })
 
-    this.socket.on('receiveMessage', (message) => {
-      this.handleIncomingMessage(message)
+    this.socket.on('joinedChat', ({ room }) => {
+      this.currentRoom = room
+    })
+
+    this.socket.on('receiveMessage', (messageData) => {
+      const chatMessage = document.querySelector('.chat-messages')
+      if (!chatMessage) {
+        console.error('Chat message element not found')
+        return
+      }
+      if (messageData.sender !== this.currentUser) {
+        const messageElement = this.createMessageElement(
+          messageData.message,
+          messageData.sender,
+          messageData.timestamp
+        )
+        chatMessage.appendChild(messageElement)
+        chatMessage.scrollTop = chatMessage.scrollHeight
+      }
     })
 
     this.socket.on('disconnect', () => {
       console.log('Disconnected from server')
+      this.currentRoom = null
+    })
+
+    this.socket.on('messageError', (error) => {
+      console.error('Error message:', error)
+      createAlert(error.message)
     })
   }
 
-  joinChat (recipient) {
+  async joinChat (recipientUsername) {
     if (!this.currentUser) {
       console.log('no user connected')
       return
     }
 
+    this.recipient = recipientUsername
+    console.log(`Joining chat with ${recipientUsername}`)
+
+    try {
+      const response = await fetch(`/chat/user/data?username=${recipientUsername}`, {
+        methiod: 'GET',
+        credentials: 'include'
+      })
+
+      const data = await response.json()
+      const recipientId = data.data._id
+      if (response.ok && data.success) {
+        this.recipientId = recipientId
+      }
+    } catch (err) {
+      console.error('Error getting recipient ID:', err.message)
+      return
+    }
     this.socket.emit('joinChat', {
       sender: this.currentUser,
-      recipient
+      recipient: recipientUsername
     })
   }
 
   sendMessage (recipient, message) {
+    console.log('sending message to:', recipient)
     if (!this.currentUser) {
       console.error('No user connected')
       return
     }
 
-    this.socket.emit('sendMessage', {
+    const messageData = {
       sender: this.currentUser,
-      recipient,
-      message
-    })
-  }
+      recipient: this.recipientId,
+      message,
+      timestamp: new Date().toISOString()
+    }
 
-  handleIncomingMessage (message) {
-    const chatMessages = document.querySelector('.chat-messages')
-    if (!chatMessages) return
+    const chatMessage = document.querySelector('.chat-messages')
+    if (chatMessage) {
+      const messageElement = this.createMessageElement(
+        message,
+        this.currentUser,
+        new Date().toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        })
+      )
 
-    const messageElement = this.createMessageElement(
-      message.message,
-      message.sender,
-      new Date(message.timestamp).toLocaleTimeString()
-    )
+      chatMessage.appendChild(messageElement)
+      chatMessage.scrollTop = chatMessage.scrollHeight
+    }
 
-    chatMessages.appendChild(messageElement)
-    chatMessages.scrollTop = chatMessages.scrollHeight
+    this.socket.emit('sendMessage', messageData)
+    document.querySelector('.chat-input').value = ''
   }
 
   createMessageElement (message, senderId, timestamp) {
@@ -156,8 +206,9 @@ class ChatSocket {
   }
 }
 
+let chat
 document.addEventListener('DOMContentLoaded', async () => {
-  const chat = new ChatSocket()
+  chat = new ChatSocket()
 
   try {
     const response = await fetch('/protected/user/data', {
@@ -194,16 +245,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (sendButton) {
       sendButton.addEventListener('click', async (e) => {
         e.preventDefault()
-        const messageContent = document.querySelector('.chat-input').value
-        await sendMessage(recipientUsername, messageContent, chat)
+        const messageContent = document.querySelector('.chat-input').value.trim()
+        if (messageContent) {
+          await sendMessage(recipientUsername, messageContent)
+        }
       })
     }
     const chatInput = document.querySelector('.chat-input')
     if (chatInput) {
-      chatInput.addEventListener('keydown', (e) => {
+      chatInput.addEventListener('keydown', async (e) => {
         if (e.key === 'Enter') {
           e.preventDefault()
-          sendMessage(recipientUsername)
+          const messageContent = document.querySelector('.chat-input').value.trim()
+          if (messageContent) {
+            await sendMessage(recipientUsername, messageContent)
+          }
         }
       })
     }
@@ -213,28 +269,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 })
 
-async function sendMessage (recipient) {
+async function sendMessage (recipient, messageContent) {
   try {
-    const messageInput = document.querySelector('.chat-input')
-    const message = messageInput.value.trim()
-
-    if (message && recipient) {
-      console.log('sending message to backend', message)
-      const response = await fetch('/chat/send/message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          recipientUsername: recipient,
-          message
-        })
-      })
-
-      if (response.ok) {
-        messageInput.value = ''
+    if (messageContent && recipient) {
+      if (!chat) {
+        console.error('Chat instance not initialized')
+        return
       }
+      chat.sendMessage(recipient, messageContent)
+      document.querySelector('.chat-input').value = ''
     }
   } catch (err) {
     console.error('Error sending message', err.message)

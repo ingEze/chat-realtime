@@ -391,11 +391,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     })
 
     const data = await response.json()
+
     const result = data.data
 
     if (response.ok) {
       result.forEach(friend => {
-        createChat(friend.username, friend.profileImage, friend.timestamp)
+        console.log('friend', friend)
+        createChat(friend.username, friend.profileImage, friend.message, friend.timestamp)
       })
     }
   } catch (err) {
@@ -403,7 +405,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 })
 
-function createChat (username, profileImage, timestamp) {
+function createChat (username, profileImage, message, timestamp) {
   const chatsContainer = document.createElement('div')
   chatsContainer.classList.add('chats-container')
   chatsContainer.innerHTML = `
@@ -417,7 +419,7 @@ function createChat (username, profileImage, timestamp) {
         <span class="message-date">${timestamp}</span>
       </div>
       <div class="chat-content">
-        <span class="last-message">This is the last message...</span>
+        <span class="last-message">${message}</span>
         <span class="new-message-indicator">•</span>
     </div>
     `

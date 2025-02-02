@@ -1,3 +1,4 @@
+import { Chat } from '../models/chatModel.js'
 import { Friendship } from '../models/friendModel.js'
 import { User } from '../models/sessionModel.js'
 
@@ -143,12 +144,33 @@ export class FriendService {
         })
       if (!user) throw new Error('User not found')
 
-      const friends = user.friends.map(friend => ({
-        username: friend.username,
-        profileImage: friend.profileImage?.dropboxUrl || null
-      }))
+      const messageData = await Promise.all(
+        user.friends.map(async (friend) => {
+          const chat = await Chat.findOne({
+            $or: [
+              { sender: userId, recipient: friend._id },
+              { sender: friend._id, recipient: userId }
+            ]
+          })
+            .sort({ createdAt: -1 })
+            .populate({
+              path: 'message',
+              options: { sort: { createdAt: -1 }, limit: 1 },
+              select: 'createdAt message'
+            })
 
-      return friends
+          return {
+            username: friend.username,
+            profileImage: friend.profileImage?.dropboxUrl,
+            timestamp: chat?.timestamp,
+            message: chat?.message
+          }
+        })
+      )
+
+      if (!messageData) throw new Error('Error getting friends')
+
+      return messageData
     } catch (err) {
       console.error('err in service', err.message)
       throw new Error(err.message || 'Error getting friends')
