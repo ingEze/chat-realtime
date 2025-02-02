@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const data = await response.json()
       if (response.ok) {
         console.log('registrarion successful')
-        window.location.href = '/login.html'
+        window.location.href = '/public/login.html'
       } else {
         usernameError('Error: ' + data.message)
       }

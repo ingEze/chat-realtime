@@ -26,9 +26,10 @@ export class FriendService {
       if (existingRequest) throw new Error('Request already sent')
 
       const existingFriendship = await Friendship.findOne({
-        requester: requesterId,
-        recipient: recipiendId,
-        status: 'accepted'
+        $or: [
+          { requester: requesterId, recipient: recipiendId, status: 'accepted' },
+          { requester: recipiendId, recipient: requesterId, status: 'accepted' }
+        ]
       })
 
       if (existingFriendship) throw new Error('Already friends')
@@ -120,6 +121,8 @@ export class FriendService {
         { $set: { status: 'accepted' } }
       )
 
+      if (!updateRequester || !updateRecipient) throw new Error('Error accepting friend request')
+
       return {
         requester: updateRequester,
         recipient: updateRecipient,
@@ -129,6 +132,29 @@ export class FriendService {
       console.error('err in service', err.message)
       throw new Error(err.message || 'Error accepting friend request')
     }
+  }
+
+  static async rejectFriendRequest (requesterId, username) {
+    try {
+      const recipient = await User.findOne({ username })
+      if (!recipient) throw new Error('User not found')
+
+      const requester = await User.findById(requesterId)
+      if (!requester) throw new Error('User not found')
+
+      const existingRequest = await Friendship.findOne({
+        $or: [
+          { requester: requester._id, recipient: recipient._id, status: 'pending' },
+          { requester: recipient._id, recipient: requester._id, status: 'pending' }
+        ]
+      })
+
+      if (!existingRequest) throw new Error('Request not found')
+
+      await Friendship.deleteOne({ _id: existingRequest._id })
+
+      return true
+    } catch (err) {}
   }
 
   static async getFriends (userId) {
@@ -162,8 +188,8 @@ export class FriendService {
           return {
             username: friend.username,
             profileImage: friend.profileImage?.dropboxUrl,
-            timestamp: chat?.timestamp,
-            message: chat?.message
+            timestamp: chat?.timestamp ? chat.timestamp : 'N/A',
+            message: chat?.message ? chat.message : 'No messages yet'
           }
         })
       )

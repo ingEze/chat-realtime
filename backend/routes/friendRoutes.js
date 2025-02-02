@@ -9,6 +9,7 @@ const friendRouter = Router()
 friendRouter.post('/add', authSession, FriendController.sendFriendRequest)
 friendRouter.get('/requests', authSession, FriendController.getFriendRequests)
 friendRouter.post('/accepted', authSession, FriendController.acceptFriendRequest)
+friendRouter.post('/rejected', authSession, FriendController.rejectFriendRequest)
 
 friendRouter.get('/user/friend', authSession, FriendController.getFriends)
 

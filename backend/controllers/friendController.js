@@ -14,7 +14,6 @@ export class FriendController {
       }
 
       const result = await FriendService.sendRequest(requesterId, username)
-      console.log('result', result)
       if (!result) {
         console.error('Error sending friend request')
         return res.status(400).json({
@@ -98,6 +97,47 @@ export class FriendController {
     }
   }
 
+  static async rejectFriendRequest (req, res) {
+    try {
+      const userId = req.user._id
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'User not authorized'
+        })
+      }
+
+      const { username } = req.body
+      if (!username) {
+        return res.status(400).json({
+          success: false,
+          message: 'Bad request'
+        })
+      }
+
+      const result = await FriendService.rejectFriendRequest(userId, username)
+
+      if (!result) {
+        return res.status(400).json({
+          success: false,
+          message: 'Error rejecting friend request'
+        })
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Friend request rejected',
+        data: result
+      })
+    } catch (err) {
+      console.error('error in controller', err.message)
+      res.status(500).json({
+        success: false,
+        message: 'Error rejecting friend request'
+      })
+    }
+  }
+
   static async getFriends (req, res) {
     try {
       const userId = req.user._id
@@ -118,13 +158,20 @@ export class FriendController {
 
       const resultFormatted = result.map(friend => ({
         ...friend,
-        timestamp: new Date(friend.timestamp).toLocaleString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true
-        })
+        timestamp: friend.timestamp !== 'N/A'
+          ? new Date(friend.timestamp).toLocaleString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          })
+          : 'N/A'
       }))
-      console.log('resultFormatted', resultFormatted)
+      if (!resultFormatted) {
+        return res.status(400).json({
+          success: false,
+          message: 'Error getting friends'
+        })
+      }
       res.status(200).json({
         success: true,
         message: 'Friends retrieved',

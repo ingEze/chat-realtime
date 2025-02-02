@@ -223,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <i class="fas fa-plus-circle add-friend-btn"></i>
           `
 
-      // Añadir evento para agregar amigo
       const addButton = userElement.querySelector('.add-friend-btn')
       addButton.addEventListener('click', () => addFriend(user.username))
 
@@ -231,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
-  // Función para agregar amigo
   searchIcon.addEventListener('click', () => {
     searchUsers(searchInput.value)
   })
@@ -264,9 +262,6 @@ document.addEventListener('DOMContentLoaded', () => {
 })
 
 // add friend
-const containerMain = document.querySelector('.container-main')
-const arrayFriends = []
-const arrayRequests = []
 async function addFriend (username) {
   try {
     const response = await fetch('/friends/add', {
@@ -281,108 +276,166 @@ async function addFriend (username) {
     const result = await response.json()
 
     if (response.ok) {
-      arrayRequests.push(result.data)
+      showAlertMessage('Friend request accepted', 3000)
+      window.location.reload()
     } else {
-      console.log(result.message)
+      showAlertMessage(result.message, 3000)
     }
   } catch (err) {
-    console.error('Error adding friend', err)
+    console.error('Error adding friend', err.message)
+    showAlertMessage('Error accepting friend request', 3000)
   }
 }
 
-// add friend container
-document.querySelector('.fa-user-plus.open').addEventListener('click', async () => {
-  containerMain.innerHTML = ''
-  createAnimationLoad(containerMain)
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleRequestIcon = document.querySelector('.toggleRequestIcon')
+  const containerMain = document.querySelector('.container-main')
+  const requestContainer = document.querySelector('.request-container')
 
-  try {
-    const response = await fetch('/friends/requests', {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
+  let isShowingRequests = false
 
-    const data = await response.json()
-    arrayRequests.length = 0
+  toggleRequestIcon.addEventListener('click', async () => {
+    isShowingRequests = !isShowingRequests
 
-    removeAnimationLoad(containerMain)
-    if (response.ok) {
-      arrayRequests.push(...data.data)
-      arrayRequests.forEach(request => {
-        createRequestContainer(request.username, request.timestamp, request.profileImage)
-      })
+    if (isShowingRequests) {
+      requestContainer.style.display = 'block'
+      containerMain.style.display = 'none'
+
+      toggleRequestIcon.classList.remove('fa-user-plus')
+      toggleRequestIcon.classList.add('fa-times')
+      await loadFriendRequest()
+    } else {
+      requestContainer.style.display = 'none'
+      containerMain.style.display = 'block'
+
+      toggleRequestIcon.classList.remove('fa-times')
+      toggleRequestIcon.classList.add('fa-user-plus')
     }
+  })
 
-    if (arrayRequests.length === 0) {
-      containerMain.innerHTML = `
-            <div class="new-user">
-              <span class="user-error">No have friend requests</span>
+  async function loadFriendRequest () {
+    requestContainer.innerHTML = ''
+    createAnimationLoad(requestContainer)
+
+    try {
+      const response = await fetch('/friends/requests', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const data = await response.json()
+      removeAnimationLoad(requestContainer)
+
+      if (response.ok) {
+        if (data.data.length === 0) {
+          requestContainer.innerHTML = `
+            <div class="requests-container">
+              <div class="new-user">
+                <span class="user-error">No friend requests</span>
+              </div>
             </div>
           `
+        } else {
+          data.data.forEach(request => {
+            createRequestCard(request.username, request.timestamp, request.profileImage)
+          })
+        }
+      }
+    } catch (err) {
+      console.error('Error obtaining friend requests', err)
+      requestContainer.innerHTML = `
+        <div class="requests-container">
+          <div class="new-user">
+            <span class="user-error">Error obtaining friend requests</span>
+          </div>
+        </div>
+      `
     }
-  } catch (err) {
-    console.error('Error obtaining friend requests', err)
   }
-})
 
-function createRequestContainer (username, timestamp, profileImage) {
-  const requestsContainer = document.createElement('form')
-  requestsContainer.classList.add('requests-container')
-  requestsContainer.innerHTML = `
-    <div class="request-card">
-          <img src="${profileImage}" alt="Perfil" class="profile-image">
+  function createRequestCard (username, timestamp, profileImage) {
+    const requestCard = document.createElement('div')
+    requestCard.classList.add('requests-container')
+    requestCard.innerHTML = `
+      <div class="request-card">
+        <img src="${profileImage}" alt="Profile" class="profile-image">
         <div class="request-info">
           <div class="username">${username}</div>
           <div class="timestamp">${timestamp}</div>
         </div>
         <div class="action-buttons">
-          <button type="submit" class="btn btn-accept" name="action" value="aceptar">Aceptar</button>
-          <button type="submit" class="btn btn-reject" name="action" value="rechazar">Rechazar</button>
+          <button class="btn btn-accept">Accept</button>
+          <button class="btn btn-reject">Reject</button>
         </div>
-    </div>
-  `
+      </div>
+    `
 
-  containerMain.insertBefore(requestsContainer, containerMain.firstChild)
+    requestContainer.appendChild(requestCard)
 
-  const btnAccept = requestsContainer.querySelector('.btn-accept')
-  const btnReject = requestsContainer.querySelector('.btn-reject')
+    const btnAccept = requestCard.querySelector('.btn-accept')
+    const btnReject = requestCard.querySelector('.btn-reject')
 
-  btnAccept.addEventListener('click', async (event) => {
-    event.preventDefault()
+    btnAccept.addEventListener('click', async () => {
+      try {
+        const response = await fetch('/friends/accepted', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username })
+        })
 
-    try {
-      const response = await fetch('/friends/accepted', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username })
-      })
-
-      console.log('arrayFriends', arrayFriends)
-
-      const data = await response.json()
-
-      if (response.ok) {
-        arrayFriends.push(data.data)
-        arrayRequests.length = 0
-        showAlertMessage('Friend request accepted', 3000)
-        window.location.href = '/index.html'
-      } else {
+        if (response.ok) {
+          showAlertMessage('Friend request accepted', 3000)
+          requestCard.remove()
+          if (requestContainer.children.length === 0) {
+            loadFriendRequest()
+          }
+        } else {
+          showAlertMessage('Error accepting friend request', 3000)
+        }
+      } catch (err) {
+        console.error('Error accepting friend request', err)
         showAlertMessage('Error accepting friend request', 3000)
       }
-    } catch (err) {
-      console.error('Error accepting friend request', err)
-      showAlertMessage('Error accepting friend request')
-    }
-  })
-}
+    })
+
+    btnReject.addEventListener('click', async () => {
+      try {
+        const response = await fetch('/friends/rejected', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username })
+        })
+
+        const data = await response.json()
+        console.log('data', data)
+
+        if (response.ok) {
+          showAlertMessage('Friend request rejected', 3000)
+          requestCard.remove()
+          if (requestContainer.children.length === 0) {
+            loadFriendRequest()
+          }
+        } else {
+          showAlertMessage('Error rejecting friend request', 3000)
+        }
+      } catch (err) {
+        console.error('Error rejecting friend request', err)
+        showAlertMessage('Error rejecting friend request', 3000)
+      }
+    })
+  }
+})
 
 // chats
-// obtener del back time del ultimo mensaje y el mensaje en si
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     const response = await fetch('/friends/user/friend', {
@@ -396,8 +449,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (response.ok) {
       result.forEach(friend => {
-        console.log('friend', friend)
-        createChat(friend.username, friend.profileImage, friend.message, friend.timestamp)
+        if (friend.timestamp === 'N/A') {
+          createChat(friend.username, friend.profileImage, friend.message, 'N/A')
+        } else {
+          console.log('typeof friend string', friend)
+          createChat(friend.username, friend.profileImage, friend.message, friend.timestamp)
+        }
       })
     }
   } catch (err) {
@@ -406,6 +463,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 })
 
 function createChat (username, profileImage, message, timestamp) {
+  const containerMain = document.querySelector('.container-main')
   const chatsContainer = document.createElement('div')
   chatsContainer.classList.add('chats-container')
   chatsContainer.innerHTML = `

@@ -80,13 +80,12 @@ async function handleFormSubmit () {
     console.log('Response server:', response.status, response.statusText)
 
     const result = await response.json()
-    console.log('result:', result)
 
     if (response.ok) {
       if (result.redirectUrl) {
         window.location.replace(result.redirectUrl)
       } else {
-        window.location.href = '/index.html'
+        window.location.href = '/public/index.html'
       }
     } else {
       console.error('Error al cambiar la contraseña:', result.message)
@@ -370,7 +369,7 @@ async function createPhotoArea (contentBox) {
       if (response.ok) {
         localStorage.removeItem('profileImageUrl')
         localStorage.setItem('profileImageUrl', currentPhoto.src)
-        window.location.href = '/index.html'
+        window.location.href = '/public/index.html'
       } else {
         console.error('Error al actualizar la imagen de perfil')
         throw new Error('Error al actualizar la imagen de perfil')
