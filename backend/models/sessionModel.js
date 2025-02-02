@@ -65,6 +65,10 @@ const userSchema = new mongoose.Schema({
       message: 'Username already exists'
     }
   },
+  isEmailVerified: {
+    type: Boolean,
+    default: false
+  },
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, {
   timestamps: true

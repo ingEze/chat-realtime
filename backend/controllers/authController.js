@@ -106,6 +106,27 @@ export class AuthController {
     }
   }
 
+  static async verifyEmail (req, res) {
+    try {
+      const { token } = req.query
+      if (!token) {
+        console.error('Token not found')
+        return res.status(400).json({
+          success: false,
+          message: 'Token not found'
+        })
+      }
+      const result = await authService.verifyEmail({ token })
+      res.json({ success: true, ...result })
+    } catch (err) {
+      console.error('Error verifying email:', err.message)
+      res.status(400).json({
+        success: false,
+        message: err.message
+      })
+    }
+  }
+
   static async login (req, res) {
     try {
       const { credentials, password } = req.body

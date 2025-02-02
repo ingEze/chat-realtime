@@ -115,12 +115,10 @@ export class SettingController {
       res.status(200).json({
         success: true,
         message: 'Updated password successful',
-        redirectUrl: '/index.html',
+        redirectUrl: '/public/index.html',
         user: { password: user.password }
       })
     } catch (err) {
-      console.error('Error completo en updatePassword(controller):', err)
-
       let statusCode = 500
       let errorMessage = 'Error updating password'
 
@@ -145,7 +143,6 @@ export class SettingController {
   }
 
   static async deleteAccount (req, res) {
-    console.log('req.body:', req.body)
     try {
       const { password } = req.body
 
@@ -163,7 +160,7 @@ export class SettingController {
       res.status(200).json({
         success: true,
         message: 'Delete account successful',
-        redirectUrl: '/login.html',
+        redirectUrl: '/public/login.html',
         user: userDelete
       })
     } catch (err) {
@@ -217,8 +214,6 @@ export class SettingController {
         user: { profileImage: user.profileImage }
       })
     } catch (err) {
-      console.error('Error in controller:', err.message)
-      console.error('Error controller:', err)
       res.status(500).json({
         success: false,
         message: 'Error updated image'

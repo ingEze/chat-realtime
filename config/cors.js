@@ -6,7 +6,8 @@ export const ACCEPTED_ORIGINS = [
   'http://localhost:5500',
   'http://127.0.0.1:5500',
   'https://www.dropboxusercontent.com',
-  'https://cdn.socket.io'
+  'https://cdn.socket.io',
+  process.env.FRONTEND_URL
 ]
 
 export const corsMiddleware = cors({

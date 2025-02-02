@@ -10,6 +10,7 @@ export const authRouter = Router()
 
 authRouter.post('/register', AuthController.register)
 authRouter.post('/register-username', AuthController.registerUsername)
+authRouter.post('/verify-email', AuthController.verifyEmail)
 authRouter.get('/profile-images', ProfileImageController.getAllProfileImages)
 authRouter.get('/profile-images/:name', ProfileImageController.getProfileImageByName)
 authRouter.post('/login', AuthController.login)

@@ -1,0 +1,121 @@
+:root {
+    --green: #13a113;
+    --clr-font: #f2f2f2;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background: linear-gradient(135deg, #000000, #434343);
+    color: var(--clr-font);
+    position: relative;
+}
+
+.container {
+    width: 90%;
+    max-width: 400px;
+    background-color: rgba(33, 33, 33, 0.9);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 1.5rem;
+    color: var(--clr-font);
+    font-size: 1.8rem;
+}
+
+.status-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+}
+
+.success .status-icon {
+    color: var(--green);
+}
+
+.error .status-icon {
+    color: #ff3333;
+}
+
+.loading .status-icon {
+    color: #888888;
+}
+
+.message {
+    margin: 1rem 0;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+.loader {
+    display: flex;
+    justify-content: space-around;
+    width: 100px;
+    margin: 2rem auto;
+}
+
+.dot {
+    width: 20px;
+    height: 20px;
+    background-color: #888888;
+    border-radius: 50%;
+    animation: bounce 1.5s infinite;
+}
+
+.dot:nth-child(2) { animation-delay: 0.3s; }
+.dot:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+
+#toReturn {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    color: var(--clr-font);
+    font-weight: 600;
+    padding: 7px;
+    font-size: clamp(16px, 2vw, 20px);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+#toReturn:hover {
+    color: var(--green);
+}
+
+.btn {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 10px 20px;
+    background-color: var(--green);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #0f800f;
+}
+
+.hidden {
+    display: none;
+}

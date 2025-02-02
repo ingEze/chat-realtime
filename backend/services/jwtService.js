@@ -11,6 +11,25 @@ export class JwtService {
     )
   }
 
+  static generateEmailVerificationToken (userId) {
+    return jwt.sign(
+      { userId, type: 'email_verification' },
+      JWT_KEY,
+      { expiresIn: '24h' }
+    )
+  }
+
+  static verifyEmailToken (token) {
+    try {
+      const decoded = jwt.verify(token, JWT_KEY)
+      if (decoded.type !== 'email_verification') throw new Error('Invalid token type')
+      return decoded
+    } catch (err) {
+      console.error('verify email error:', err)
+      throw new Error('Invalid or expired verification token')
+    }
+  }
+
   static generateSecondInstanceToken (userId) {
     return jwt.sign(
       { userId, type: 'second_instance' },

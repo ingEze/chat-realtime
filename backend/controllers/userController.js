@@ -54,7 +54,6 @@ export class UserController {
 
       res.send(req.user.username)
     } catch (err) {
-      console.error('error en userTag:', err)
       res.status(500).json({
         success: false,
         message: 'Error in server, not username'

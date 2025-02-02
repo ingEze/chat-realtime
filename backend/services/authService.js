@@ -3,6 +3,8 @@ import bcrypt from 'bcrypt'
 import { PendingRegistration, ProfileImage, User } from '../models/sessionModel.js'
 import { UserValidation } from '../utils/validation.js'
 import { SALT_ROUNDS } from '../../config/config.js'
+import { JwtService } from './JwtService.js'
+import emailService from './emailService.js'
 
 export const authService = {
   async register ({ email, password }) {
@@ -37,6 +39,7 @@ export const authService = {
     } catch (err) {
       throw new Error('Invalid credentials')
     }
+
     const existingUsername = await User.findOne({ username })
     if (existingUsername) throw new Error('Username already existing')
 
@@ -50,11 +53,18 @@ export const authService = {
       email: pendingUser.email,
       password: pendingUser.password,
       username,
-      profileImage: profileImageId
+      profileImage: profileImageId,
+      isEmailVerified: false
     })
 
     await finalUser.save()
     await finalUser.populate('profileImage', 'name')
+
+    try {
+      await emailService.sendVerificationEmail(finalUser)
+    } catch (emailError) {
+      console.error('Error sending verification email:', emailError)
+    }
 
     await PendingRegistration.findByIdAndDelete(pendingUserId)
 
@@ -62,6 +72,24 @@ export const authService = {
     delete userResponse.password
 
     return userResponse
+  },
+
+  async verifyEmail ({ token }) {
+    const decoded = JwtService.verifyEmailToken(token)
+
+    const user = await User.findById(decoded.userId)
+    if (!user) throw new Error('User not found')
+
+    if (user.isEmailVerified) throw new Error('Email already verified')
+
+    const updateUser = await User.findByIdAndUpdate(
+      decoded.userId,
+      { isEmailVerified: true },
+      { new: true, runValidators: false }
+    )
+    if (!updateUser) throw new Error('Error updating user')
+
+    return { message: 'Email verified successfully' }
   },
 
   async login ({ username, email, password }) {
