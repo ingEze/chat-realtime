@@ -7,12 +7,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!response.ok) {
       console.error('No token session, redirecting to login')
-      window.location.href = '/public/notAuthorized.html'
+      window.location.href = ' /notAuthorized.html'
     }
     localStorage.removeItem('profileImageUrl')
   } catch (err) {
     console.error('Fatal error:', err)
-    window.location.href = '/public/notAuthorized.html'
+    window.location.href = ' /notAuthorized.html'
   }
 })
 
@@ -486,7 +486,7 @@ function createChat (username, profileImage, message, timestamp) {
   containerMain.querySelectorAll('.chats-container').forEach(chat => {
     chat.addEventListener('click', () => {
       const username = chat.querySelector('.chat-username').textContent
-      window.location.href = `/public/chat.html?username=${username}`
+      window.location.href = ` /chat.html?username=${username}`
     })
   })
 }
@@ -514,7 +514,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // redirect
 document.querySelector('#userTag').addEventListener('click', () => {
-  window.location.href = '/public/settingAccount.html'
+  window.location.href = ' /settingAccount.html'
 })
 
 // logout
@@ -527,7 +527,7 @@ document.querySelector('#logout').addEventListener('click', async () => {
 
     if (response.ok) {
       localStorage.clear()
-      window.location.href = '/public/login.html'
+      window.location.href = ' /login.html'
     } else {
       console.error('Error when logging out')
     }

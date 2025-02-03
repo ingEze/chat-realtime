@@ -139,7 +139,7 @@ class ChatSocket {
     const usernameParams = urlSearchParams.get('username')
     if (!usernameParams) {
       console.error('No recipient specified in URL parameters')
-      window.location.href = '/public/index.html'
+      window.location.href = '/index.html'
     } else {
       try {
         const response = await fetch('/chat/recent/message', {
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const data = await response.json()
     if (!response.ok || !data.success) {
       localStorage.removeItem('profileImageUrl')
-      window.location.href = '/public/notAuthorized.html'
+      window.location.href = '/notAuthorized.html'
     }
 
     chat.setCurrentUser(data.user._id)
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!recipientUsername) {
       console.error('No recipient username provided')
-      window.location.href = '/public/notAuthorized.html'
+      window.location.href = '/notAuthorized.html'
       return
     }
 
@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } catch (err) {
     console.error('Fatal error:', err.message)
-    window.location.href = '/public/notAuthorized.html'
+    window.location.href = '/notAuthorized.html'
   }
 })
 
@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (!usernameParams) {
     console.error('No username provided')
-    window.location.href = '/public/notAuthorized.html'
+    window.location.href = '/notAuthorized.html'
     return
   }
 
@@ -361,7 +361,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 })
 
 document.querySelector('.back-button').addEventListener('click', () => {
-  window.location.href = '/public/index.html'
+  window.location.href = '/index.html'
   localStorage.removeItem('friendProfileImage')
 })
 

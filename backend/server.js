@@ -24,7 +24,7 @@ app.use(cookieParser())
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use('/public', express.static('frontend'))
+app.use(express.static('frontend'))
 
 initSocket(server)
 

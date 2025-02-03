@@ -1,7 +1,7 @@
 let arrayImage = []
 
 document.querySelector('#redirectHome').addEventListener('click', () => {
-  window.location.href = '/public/index.html'
+  window.location.href = ' /index.html'
 })
 
 // routh protected
@@ -14,11 +14,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!response.ok) {
       console.error('No session token')
-      window.location.href = '/public/notAuthorized.html'
+      window.location.href = ' /notAuthorized.html'
     }
   } catch (err) {
     console.error('Fatal error:', err)
-    window.location.href = '/public/notAuthorized.html'
+    window.location.href = ' /notAuthorized.html'
   }
 })
 // load option selected
@@ -85,7 +85,7 @@ async function handleFormSubmit () {
       if (result.redirectUrl) {
         window.location.replace(result.redirectUrl)
       } else {
-        window.location.href = '/public/index.html'
+        window.location.href = ' /index.html'
       }
     } else {
       console.error('Error al cambiar la contraseña:', result.message)
@@ -369,7 +369,7 @@ async function createPhotoArea (contentBox) {
       if (response.ok) {
         localStorage.removeItem('profileImageUrl')
         localStorage.setItem('profileImageUrl', currentPhoto.src)
-        window.location.href = '/public/index.html'
+        window.location.href = ' /index.html'
       } else {
         console.error('Error al actualizar la imagen de perfil')
         throw new Error('Error al actualizar la imagen de perfil')
@@ -468,7 +468,7 @@ menuContainer.querySelector('#deleteAccount').addEventListener('click', () => {
         console.log('Delete account successful')
         window.location.replace(result.redirectUrl)
       } else {
-        window.location.href = '/public/login.html'
+        window.location.href = ' /login.html'
       }
     } catch (err) {
       console.error('Error delete account', err)

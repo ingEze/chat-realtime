@@ -115,7 +115,7 @@ export class SettingController {
       res.status(200).json({
         success: true,
         message: 'Updated password successful',
-        redirectUrl: '/public/index.html',
+        redirectUrl: '/index.html',
         user: { password: user.password }
       })
     } catch (err) {
@@ -160,7 +160,7 @@ export class SettingController {
       res.status(200).json({
         success: true,
         message: 'Delete account successful',
-        redirectUrl: '/public/login.html',
+        redirectUrl: '/login.html',
         user: userDelete
       })
     } catch (err) {

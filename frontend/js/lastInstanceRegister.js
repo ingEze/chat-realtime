@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!response.ok) {
       console.error('User not authorized')
-      window.location.href = '/public/notAuthorized.html'
+      window.location.href = ' /notAuthorized.html'
     }
   } catch (err) {
     console.error('Error:', err.message)
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const data = await response.json()
       if (response.ok) {
         console.log('registrarion successful')
-        window.location.href = '/public/login.html'
+        window.location.href = ' /login.html'
       } else {
         usernameError('Error: ' + data.message)
       }

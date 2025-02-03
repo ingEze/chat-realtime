@@ -1,6 +1,3 @@
-import dotenv from 'dotenv'
-dotenv.config()
-
 export const emailConfig = {
   service: 'gmail',
   auth: {
