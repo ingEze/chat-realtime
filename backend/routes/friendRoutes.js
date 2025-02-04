@@ -14,5 +14,6 @@ friendRouter.post('/rejected', authSession, FriendController.rejectFriendRequest
 friendRouter.get('/user/friend', authSession, FriendController.getFriends)
 
 friendRouter.get('/search', authSession, Search.searchUsers)
+friendRouter.get('/search/existing', authSession, Search.searchExistingUsers)
 
 export default friendRouter

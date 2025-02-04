@@ -38,6 +38,44 @@ export class Search {
       })
     }
   }
+
+  static async searchExistingUsers (req, res) {
+    try {
+      const user = req.user._id
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'No authenticate'
+        })
+      }
+
+      const { q } = req.query
+      if (!q || q.trim() === '') {
+        return res.status(400).json({
+          success: false,
+          message: 'Query is required'
+        })
+      }
+
+      const users = await UserDataService.searchExistingUsers(user, q)
+      if (!users) {
+        return res.status(200).json({
+          success: true,
+          message: 'User not added yet'
+        })
+      }
+
+      res.status(200).json({
+        success: true,
+        data: users
+      })
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: 'Error searching users'
+      })
+    }
+  }
 }
 
 export class UserController {

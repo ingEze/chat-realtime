@@ -105,5 +105,17 @@ export const authService = {
     delete userResponse.password
 
     return userResponse
+  },
+
+  async verifiedEmail (userId) {
+    try {
+      const user = await User.findById(userId)
+      if (!user) throw new Error('User not found')
+
+      const isVerified = user.isEmailVerified
+      return isVerified
+    } catch (err) {
+      throw new Error('Error verifying email')
+    }
   }
 }

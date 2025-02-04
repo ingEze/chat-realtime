@@ -9,37 +9,32 @@
     <link rel="stylesheet" href="css/verify-email.css">
 </head>
 <body>
-    <a href="login.html" id="toReturn">
-        <i class="fas fa-arrow-left"></i> Volver
-    </a>
-
     <div class="container" id="verificationContainer">
-        <!-- Estado de carga inicial -->
         <div class="loading" id="loadingState">
             <i class="fas fa-circle-notch fa-spin status-icon"></i>
-            <h2>Verificando tu email</h2>
+            <h2>Verifying your email</h2>
             <div class="loader">
                 <div class="dot"></div>
                 <div class="dot"></div>
                 <div class="dot"></div>
             </div>
-            <p class="message">Por favor espera mientras verificamos tu correo electrónico...</p>
+            <p class="message">Please wait while we verify your email...</p>
         </div>
-
+    
         <div class="success hidden" id="successState">
             <i class="fas fa-check-circle status-icon"></i>
-            <h2>¡Email Verificado!</h2>
-            <p class="message">Tu correo electrónico ha sido verificado exitosamente. Ya puedes comenzar a usar FlopiChat.</p>
-            <a href="login.html" class="btn">Iniciar Sesión</a>
+            <h2>Email Verified!</h2>
+            <p class="message">Your email has been successfully verified. You can now start using FlopiChat.</p>
+            <a href="login.html" class="btn">Log In</a>
         </div>
-
+    
         <div class="error hidden" id="errorState">
             <i class="fas fa-times-circle status-icon"></i>
-            <h2>Error de Verificación</h2>
-            <p class="message" id="errorMessage">Ha ocurrido un error al verificar tu correo electrónico. Por favor, intenta nuevamente.</p>
-            <a href="login.html" class="btn">Volver al Inicio</a>
+            <h2>Verification Error</h2>
+            <p class="message" id="errorMessage">An error occurred while verifying your email. Please try again.</p>
+            <a href="login.html" class="btn">Go to Home</a>
         </div>
-    </div>
+    </div>    
     <script src="js/verify-email.js"></script>
 </body>
 </html>

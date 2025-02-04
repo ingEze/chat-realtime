@@ -41,7 +41,6 @@ class EmailService {
       }
       return nodemailer.createTransport(transportConfig)
     } catch (err) {
-      console.error('Error creating transport:', err)
       throw new Error('Error creating transport', err)
     }
   }
@@ -111,7 +110,6 @@ class EmailService {
       }
 
       const result = await transporter.sendMail(mailOptions)
-      console.log('Correo enviado exitosamente:', result)
 
       return result
     } catch (err) {

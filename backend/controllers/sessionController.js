@@ -1,3 +1,5 @@
+import { authService } from '../services/authService.js'
+
 export class SessionController {
   static logout (req, res) {
     try {
@@ -9,6 +11,20 @@ export class SessionController {
     } catch (err) {
       console.error('Error in logout: ', err)
     }
+  }
+
+  static async emailVerified (req, res) {
+    try {
+      const user = req.user._id
+      const result = await authService.verifiedEmail(user)
+      if (!result) {
+        return res.status(401).json({
+          success: false,
+          message: 'Email not verified'
+        })
+      }
+      res.json({ success: true, ...result })
+    } catch (err) {}
   }
 
   static async authorized (req, res) {

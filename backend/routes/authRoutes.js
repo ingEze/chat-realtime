@@ -16,6 +16,7 @@ authRouter.get('/profile-images/:name', ProfileImageController.getProfileImageBy
 authRouter.post('/login', AuthController.login)
 
 authRouter.get('/protected', authSession, SessionController.authorized)
+authRouter.get('/protected/user/verified-email', authSession, SessionController.emailVerified)
 authRouter.get('/protected-username', secondInstanceRegister, SessionController.authorizedUsername)
 authRouter.post('/logout', SessionController.logout)
 

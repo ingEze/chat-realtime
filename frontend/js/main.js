@@ -1,20 +1,40 @@
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const response = await fetch('/auth/protected', {
-      method: 'GET',
-      credentials: 'include'
-    })
-
-    if (!response.ok) {
-      console.error('No token session, redirecting to login')
-      window.location.href = ' /notAuthorized.html'
-    }
-    localStorage.removeItem('profileImageUrl')
+    await checkUserLogged()
+    await checkVerifiedEmail()
   } catch (err) {
-    console.error('Fatal error:', err)
-    window.location.href = ' /notAuthorized.html'
+    const reason = err.message === 'Email not verified' ? 'email' : 'auth'
+    window.location.href = `/notAuthorized.html?reason=${reason}`
   }
 })
+
+async function checkUserLogged () {
+  const response = await fetch('/auth/protected', {
+    method: 'GET',
+    credentials: 'include'
+  })
+
+  if (!response.ok) {
+    throw new Error('User not authorized')
+  }
+  localStorage.removeItem('profileImageUrl')
+}
+
+async function checkVerifiedEmail () {
+  const response = await fetch('/auth/protected/user/verified-email', {
+    method: 'GET',
+    credentials: 'include'
+  })
+
+  if (!response.ok) {
+    throw new Error('Error in verified email')
+  }
+
+  const data = await response.json()
+  if (data.isVerified === false) {
+    throw new Error('Email not verified')
+  }
+}
 
 // load profile image user
 async function handleProfileImage () {
@@ -142,94 +162,16 @@ function loadImageToHeader (imageUrl) {
 }
 
 // search user (existing)
+const searchInput = document.querySelector('#addNewUser')
+const userContainer = document.querySelector('.add-user-search-box')
+const searchIcon = document.querySelector('.add-new-user-search i')
+
+const searchConversation = document.querySelector('.search-input')
+const searchConversationIcon = document.querySelector('#searchConversationIcon')
+
+const arrayUsers = []
+
 document.addEventListener('DOMContentLoaded', () => {
-  const searchInput = document.getElementById('addNewUser')
-  const userContainer = document.querySelector('.add-user-search-box')
-  const searchIcon = document.querySelector('.add-new-user-search i')
-  const arrayUsers = []
-
-  async function searchUsers (query) {
-    if (!query || query.trim() === '') {
-      return
-    }
-
-    try {
-      userContainer.innerHTML = ''
-      arrayUsers.length = 0
-      createAnimationLoad(userContainer)
-
-      const response = await fetch(`/friends/search?q=${encodeURIComponent(query)}`, {
-        method: 'GET',
-        credentials: 'include'
-      })
-
-      if (!response.ok) throw new Error('No se pudieron obtener los usuarios')
-
-      const users = await response.json()
-      const usersWithImagesLoaded = await loadImage(users)
-
-      removeAnimationLoad(userContainer)
-      arrayUsers.push(...usersWithImagesLoaded)
-
-      renderUsers(arrayUsers)
-    } catch (err) {
-      userContainer.innerHTML = `
-            <div class="new-user">
-              <span class="user-error">Error al buscar usuarios</span>
-            </div>
-          `
-    }
-  }
-
-  function loadImage (users) {
-    const imagePromises = users.map(async (user) => {
-      return new Promise(resolve => {
-        const img = new Image()
-        img.src = user.profileImage
-        img.onload = () => {
-          user.imageLoad = true
-          resolve(user)
-        }
-        img.onerror = () => {
-          user.imageLoad = false
-          resolve(user)
-        }
-      })
-    })
-    return Promise.all(imagePromises)
-  }
-
-  async function renderUsers (users) {
-    if (users.length === 0) {
-      userContainer.innerHTML = `
-            <div class="new-user">
-              <span class="user-error">No se encontraron usuarios</span>
-            </div>
-          `
-      return
-    }
-
-    userContainer.innerHTML = ''
-
-    users.forEach(user => {
-      const userElement = document.createElement('div')
-      userElement.classList.add('new-user')
-
-      userElement.innerHTML = `
-            <div class="data-user">
-              <img src="${user.profileImage}" alt="${user.username}">
-              <span class="username">${user.username}</span>
-            </div>
-            <i class="fas fa-plus-circle add-friend-btn"></i>
-          `
-
-      const addButton = userElement.querySelector('.add-friend-btn')
-      addButton.addEventListener('click', () => addFriend(user.username))
-
-      userContainer.appendChild(userElement)
-    })
-  }
-
   searchIcon.addEventListener('click', () => {
     searchUsers(searchInput.value)
   })
@@ -239,7 +181,159 @@ document.addEventListener('DOMContentLoaded', () => {
       searchUsers(searchInput.value)
     }
   })
+
+  searchConversationIcon.addEventListener('click', () => {
+    searchExistingUsers(searchConversation.value)
+    console.log('searchInput.value', searchConversation.value)
+  })
+
+  searchConversation.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      searchExistingUsers(searchConversation.value)
+      console.log('searchInput.value ENTER', searchConversation.value)
+    }
+  })
 })
+
+const existingUserContainer = document.querySelector('.existing-user-container')
+async function searchExistingUsers (query) {
+  if (!query || query.trim() === '') {
+    return
+  }
+
+  try {
+    const response = await fetch(`/friends/search/existing?q=${encodeURIComponent(query)}`, {
+      method: 'GET',
+      credentials: 'include'
+    })
+
+    const data = await response.json()
+    console.log('data', data.message)
+    const existingUser = data.data
+
+    if (!existingUser) {
+      console.error('No existing user found')
+      existingUserContainer.innerHTML = `
+          <div class="data-user-existing">
+            <span class="error-search-existing">${data.message}</span>
+          </div>
+        `
+    } else {
+      createExistingUser(existingUser.profileImage, existingUser.username)
+    }
+
+    removeAnimationLoad(userContainer)
+  } catch (err) {
+    errorSearchExisting(err)
+  }
+}
+
+function errorSearchExisting (err) {
+  existingUserContainer.innerHTML = `
+  <div class="data-user-existing">
+    <span class="error-search-existing">${err}</span>
+  </div>
+`
+}
+
+async function createExistingUser (profileImage, username) {
+  const searchConversation = document.querySelector('.search-conversation')
+
+  const containterUsersExisting = document.createElement('div')
+  containterUsersExisting.classList.add('existing-user-container')
+
+  containterUsersExisting.innerHTML = `
+     <div class="user">
+        <div class="data-user-existing">
+          <img src="${profileImage}" alt="${username}" class="user-photo">
+          <span class="username">${username}</span>
+      </div>
+  `
+
+  searchConversation.appendChild(containterUsersExisting)
+}
+
+async function searchUsers (query) {
+  if (!query || query.trim() === '') {
+    return
+  }
+
+  try {
+    userContainer.innerHTML = ''
+    arrayUsers.length = 0
+    createAnimationLoad(userContainer)
+
+    const response = await fetch(`/friends/search?q=${encodeURIComponent(query)}`, {
+      method: 'GET',
+      credentials: 'include'
+    })
+
+    if (!response.ok) throw new Error('No se pudieron obtener los usuarios')
+
+    const users = await response.json()
+    const usersWithImagesLoaded = await loadImage(users)
+
+    removeAnimationLoad(userContainer)
+    arrayUsers.push(...usersWithImagesLoaded)
+
+    renderUsers(arrayUsers)
+  } catch (err) {
+    userContainer.innerHTML = `
+          <div class="new-user">
+            <span class="user-error">Error al buscar usuarios</span>
+          </div>
+        `
+  }
+}
+
+function loadImage (users) {
+  const imagePromises = users.map(async (user) => {
+    return new Promise(resolve => {
+      const img = new Image()
+      img.src = user.profileImage
+      img.onload = () => {
+        user.imageLoad = true
+        resolve(user)
+      }
+      img.onerror = () => {
+        user.imageLoad = false
+        resolve(user)
+      }
+    })
+  })
+  return Promise.all(imagePromises)
+}
+
+async function renderUsers (users) {
+  if (users.length === 0) {
+    userContainer.innerHTML = `
+          <div class="new-user">
+            <span class="user-error">No se encontraron usuarios</span>
+          </div>
+        `
+    return
+  }
+
+  userContainer.innerHTML = ''
+
+  users.forEach(user => {
+    const userElement = document.createElement('div')
+    userElement.classList.add('new-user')
+
+    userElement.innerHTML = `
+          <div class="data-user">
+            <img src="${user.profileImage}" alt="${user.username}">
+            <span class="username">${user.username}</span>
+          </div>
+          <i class="fas fa-plus-circle add-friend-btn"></i>
+        `
+
+    const addButton = userElement.querySelector('.add-friend-btn')
+    addButton.addEventListener('click', () => addFriend(user.username))
+
+    userContainer.appendChild(userElement)
+  })
+}
 
 // float container (add user)
 document.addEventListener('DOMContentLoaded', () => {
@@ -452,7 +546,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (friend.timestamp === 'N/A') {
           createChat(friend.username, friend.profileImage, friend.message, 'N/A')
         } else {
-          console.log('typeof friend string', friend)
           createChat(friend.username, friend.profileImage, friend.message, friend.timestamp)
         }
       })

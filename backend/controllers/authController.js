@@ -110,7 +110,6 @@ export class AuthController {
     try {
       const { token } = req.query
       if (!token) {
-        console.error('Token not found')
         return res.status(400).json({
           success: false,
           message: 'Token not found'
@@ -119,7 +118,6 @@ export class AuthController {
       const result = await authService.verifyEmail({ token })
       res.json({ success: true, ...result })
     } catch (err) {
-      console.error('Error verifying email:', err.message)
       res.status(400).json({
         success: false,
         message: err.message
