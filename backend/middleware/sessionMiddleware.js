@@ -1,6 +1,6 @@
 // sessionMiddleware.js
 
-import { JwtService } from '../services/JwtService.js'
+import { JwtService } from  '../services/jwtService.js'
 import { User } from '../models/sessionModel.js'
 
 export const authSession = async (req, res, next) => {
@@ -96,14 +96,4 @@ export const routeProtected = async (req, res, next) => {
       message: 'Invalid session'
     })
   }
-}
-
-export const isAdmin = (req, res, next) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({
-      success: false,
-      message: 'Acceso denegado'
-    })
-  }
-  next()
 }

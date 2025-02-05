@@ -1,5 +1,5 @@
 import { authService } from '../services/authService.js'
-import { JwtService } from '../services/JwtService.js'
+import { JwtService } from '../services/jwtService.js'
 import { UserValidation } from '../utils/validation.js'
 
 export class AuthController {
