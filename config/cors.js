@@ -7,7 +7,8 @@ export const ACCEPTED_ORIGINS = [
   'http://127.0.0.1:5500',
   'https://www.dropboxusercontent.com',
   'https://cdn.socket.io',
-  process.env.FRONTEND_URL
+  process.env.FRONTEND_URL,
+  'https://flopichat.up.railway.app'
 ]
 
 export const corsMiddleware = cors({
