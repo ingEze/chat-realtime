@@ -202,4 +202,58 @@ export class FriendService {
       throw new Error(err.message || 'Error getting friends')
     }
   }
+
+  static async removeFriend (userId, username) {
+    try {
+      const user = await User.findById(userId)
+      if (!user) throw new Error('User not found')
+
+      const friend = await User.findOne({ username })
+      if (!friend) throw new Error('Friend not found')
+
+      await User.updateOne(
+        { _id: userId },
+        { $pull: { friends: friend._id } }
+      )
+
+      await User.updateOne(
+        { _id: friend._id },
+        { $pull: { friends: userId } }
+      )
+
+      return true
+    } catch (err) {
+      console.error('err in service', err.message)
+      throw new Error(err.message || 'Error removing friend')
+    }
+  }
+
+  static async verifyFriend (userId, username) {
+    try {
+      const user = await User.findById(userId)
+      if (!user) throw new Error('User not found')
+
+      const friend = await User.findOne({ username })
+      if (!friend) throw new Error('Friend not found')
+
+      const result = await Friendship.findOne({
+        $or: [
+          { requester: userId, recipient: friend._id, status: 'accepted' },
+          { requester: friend._id, recipient: userId, status: 'accepted' }
+        ]
+      })
+
+      console.log('result in service', result)
+
+      if (!result) {
+        console.error('friend not found')
+        throw new Error('Friend not found')
+      }
+
+      return result
+    } catch (err) {
+      console.error('err in service', err.message)
+      throw new Error(err.message || 'Error verifying friend')
+    }
+  }
 }

@@ -185,4 +185,85 @@ export class FriendController {
       })
     }
   }
+
+  static async removeFriend (req, res) {
+    try {
+      const userId = req.user._id
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'User not authorized'
+        })
+      }
+
+      const { username } = req.body
+      if (!username) {
+        return res.status(400).json({
+          success: false,
+          message: 'Bad request'
+        })
+      }
+
+      const result = await FriendService.removeFriend(userId, username)
+      if (!result) {
+        return res.status(400).json({
+          success: false,
+          message: 'Error removing friend'
+        })
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Friend removed',
+        data: result
+      })
+    } catch (err) {
+      console.error('error in controller', err.message)
+      res.status(500).json({
+        success: false,
+        message: 'Error removing friend'
+      })
+    }
+  }
+
+  static async verifyFriend (req, res) {
+    try {
+      const userId = req.user._id
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'User not authorized'
+        })
+      }
+
+      const { username } = req.body
+      if (!username) {
+        return res.status(400).json({
+          success: false,
+          message: 'Bad request'
+        })
+      }
+
+      const result = await FriendService.verifyFriend(userId, username)
+      console.log('result in controller', result)
+      if (!result) {
+        return res.status(400).json({
+          success: false,
+          message: 'Error verifying friend'
+        })
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Friend verified',
+        data: result
+      })
+    } catch (err) {
+      console.error('error in controller', err.message)
+      res.status(500).json({
+        success: false,
+        message: 'Error verifying friend'
+      })
+    }
+  }
 }

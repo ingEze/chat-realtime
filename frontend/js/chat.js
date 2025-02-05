@@ -209,6 +209,7 @@ class ChatSocket {
 let chat
 document.addEventListener('DOMContentLoaded', async () => {
   chat = new ChatSocket()
+  await friendVerify()
 
   try {
     const response = await fetch('/protected/user/data', {
@@ -217,9 +218,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     })
 
     const data = await response.json()
-    if (!response.ok || !data.success) {
+    if (!response.ok) {
       localStorage.removeItem('profileImageUrl')
       window.location.href = '/notAuthorized.html'
+    }
+
+    if (!data.success) {
+      throw new Error('Invalid user data')
     }
 
     chat.setCurrentUser(data.user._id)
@@ -365,9 +370,80 @@ document.querySelector('.back-button').addEventListener('click', () => {
   localStorage.removeItem('friendProfileImage')
 })
 
+const deleteFriendContainer = document.querySelector('.delete-friend')
+document.querySelector('.fa-trash').addEventListener('click', () => {
+  createFloatContainer()
+})
+
+function createFloatContainer () {
+  if (document.querySelector('.float-warning')) return
+
+  const floatContainer = document.createElement('div')
+  floatContainer.classList.add('float-warning')
+  floatContainer.innerHTML = `
+      <p>Are you sure you want to remove this friend?</p>
+      <button type="button" class="yes-button">Yes</button>
+      <button type="button" class="no-button">No</button>
+  `
+  deleteFriendContainer.appendChild(floatContainer)
+
+  floatContainer.querySelector('.no-button').addEventListener('click', () => floatContainer.remove())
+
+  floatContainer.querySelector('.yes-button').addEventListener('click', async () => {
+    await removeFriend()
+    floatContainer.remove()
+  })
+}
+
+async function removeFriend () {
+  const Urlparams = new URLSearchParams(window.location.search)
+  const username = Urlparams.get('username')
+  try {
+    const response = await fetch('/friends/remove', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username })
+    })
+
+    if (!response.ok) {
+      console.error('error in response')
+      throw new Error(`HTTP error! Status: ${response.status}`)
+    }
+
+    const data = await response.json()
+
+    if (!data || !data.success) {
+      console.error('Invalid response format')
+      return
+    }
+
+    window.location.href = '/index.html'
+  } catch (err) {}
+}
+
 function createAlert (message) {
   const alert = document.createElement('div')
   alert.classList.add('alert')
   alert.innerHTML = `<p>${message}</p>`
   document.body.appendChild(alert)
+}
+
+async function friendVerify () {
+  try {
+    const response = await fetch('/friends/verify', {
+      method: 'GET',
+      credentials: 'include'
+    })
+
+    if (!response.ok) {
+      console.error('Error! Status:', response.status)
+      window.location.href = '/index.html'
+    }
+  } catch (err) {
+    console.error('error in response', err.message)
+    window.location.href = '/index.html'
+  }
 }

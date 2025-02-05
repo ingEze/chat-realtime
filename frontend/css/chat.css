@@ -37,12 +37,13 @@ body {
 }
 
 .chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     background-color: var(--green);
     padding: clamp(15px, 2vw, 25px);
     border-radius: 10px 10px 0 0;
     box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
-    display: flex;
-    align-items: center;
 }
 
 .back-button {
@@ -67,12 +68,94 @@ body {
 .username {
     color: white;
     font-size: clamp(16px, 1.5vw, 20px);
+    font-weight: 600;
+    letter-spacing: 1px;
 }
 
 #userPhoto {
     width: 45px;
     height: 45px;
     border-radius: 50%;
+}
+
+.delete-friend {
+    position: relative;
+    display: inline-block;
+}
+
+.fa-trash {
+    color: #f00;
+    font-size: 1.5rem;
+    padding: 7px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.fa-trash:hover {
+    color: #ff3333;
+}
+
+.float-warning {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 20px);
+    background-color: var(--grey-dark);
+    border-radius: 8px;
+    padding: clamp(15px, 2vw, 20px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    width: max-content;
+    min-width: 200px;
+    max-width: 90vw;
+    display: block;
+    z-index: 1000;
+}
+
+.float-warning::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 15px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid var(--grey-dark);
+}
+
+.float-warning p {
+    color: white;
+    font-size: clamp(14px, 1.2vw, 16px);
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.float-warning button {
+    padding: clamp(8px, 1vw, 12px) clamp(15px, 2vw, 20px);
+    border: none;
+    border-radius: 5px;
+    font-size: clamp(12px, 1vw, 14px);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.yes-button {
+    background-color: #ff3333;
+    color: white;
+    margin-right: 10px;
+}
+
+.yes-button:hover {
+    background-color: #ff0000;
+}
+
+.no-button {
+    background-color: var(--grey);
+    color: white;
+}
+
+.no-button:hover {
+    background-color: #3a3a3a;
 }
 
 .chat-messages {
