@@ -40,7 +40,7 @@ const port = process.env.PORT || 3055
 
 try {
   await connectDB()
-  server.listen(port, () => {
+  server.listen(port, '0.0.0.0', () => {
     console.log(`server listening on port ${port}!`)
   })
 } catch (err) {
