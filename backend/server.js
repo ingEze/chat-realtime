@@ -2,7 +2,6 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 
 import { createServer } from 'http'
-import { PORT } from '../config/config.js'
 
 import { connectDB } from './utils/db.js'
 import { corsMiddleware } from '../config/cors.js'
@@ -37,10 +36,12 @@ app.use('/chat', chatRouter)
 app.use('/setting', settingRouter)
 app.use('/protected', protectedUserRouter)
 
+const port = process.env.PORT || 3000
+
 try {
   await connectDB()
-  server.listen(PORT, () => {
-    console.log(`server listening on port ${PORT}!`)
+  server.listen(port, () => {
+    console.log(`server listening on port ${port}!`)
   })
 } catch (err) {
   console.error('Failed to start server:', err)
