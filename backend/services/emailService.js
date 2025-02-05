@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer'
 import { google } from 'googleapis'
 import { emailConfig as config } from '../../config/email.config.js'
-import { JwtService } from './JwtService.js'
+import { JwtService } from './jwtService.js'
 import fs from 'fs'
 import path from 'path'
 

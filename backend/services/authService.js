@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import { PendingRegistration, ProfileImage, User } from '../models/sessionModel.js'
 import { UserValidation } from '../utils/validation.js'
 import { SALT_ROUNDS } from '../../config/config.js'
-import { JwtService } from './JwtService.js'
+import { JwtService } from './jwtService.js'
 import emailService from './emailService.js'
 
 export const authService = {
