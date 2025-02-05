@@ -15,6 +15,9 @@ import settingRouter from './routes/settingRoutes.js'
 import protectedUserRouter from './routes/protectedUser.js'
 import chatRouter from './routes/messageRoutes.js'
 
+import dotenv from 'dotenv'
+dotenv.config()
+
 const app = express()
 const server = createServer(app)
 
