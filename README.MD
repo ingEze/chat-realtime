@@ -1,84 +1,91 @@
-
 # Chat en Tiempo Real
 
-Este es un proyecto de **Chat en Tiempo Real** que permite a los usuarios registrarse, iniciar sesión con su correo electrónico o nombre de usuario, agregar amigos, buscar a los usuarios agregados y chatear en tiempo real.
+Este es un proyecto de **Chat en Tiempo Real** que permite a los usuarios registrarse, iniciar sesión, agregar amigos y comunicarse en tiempo real de manera segura y eficiente. Además, incluye validación de correo electrónico para mayor seguridad.
 
-## Funcionalidades
+## 🚀 Funcionalidades
 
-- **Registro de usuario**: Los usuarios pueden registrarse proporcionando su correo electrónico o un nombre de usuario único.
-- **Inicio de sesión**: Los usuarios pueden iniciar sesión usando su correo electrónico o nombre de usuario.
-- **Agregar amigos**: Los usuarios pueden buscar y agregar a otros usuarios como amigos utilizando el username.
-- **Chat en tiempo real**: Los usuarios pueden enviar y recibir mensajes en tiempo real
-- **Buscar Amigos**: Los usuarios puedes buscar a los usuarios agregados en tu lista de amigos después de haberlos agregado.
+- **Registro de usuario**: Los usuarios pueden registrarse proporcionando su correo electrónico y un nombre de usuario único.
+- **Inicio de sesión**: Autenticación segura con JWT mediante correo electrónico y contraseña.
+- **Validación por correo electrónico**: Se envía un correo de verificación para activar la cuenta.
+- **Gestión de amigos**: Buscar y agregar amigos por nombre de usuario.
+- **Chat en tiempo real**: Comunicación instantánea con WebSockets.
+- **Configuración de cuenta**:
+  - Modificación de foto de perfil.
+  - Cambio de nombre de usuario.
+  - Actualización de correo electrónico.
+  - Cambio de contraseña.
+- **Almacenamiento en la nube**: Las imágenes de perfil se almacenan en Dropbox.
 
+## 🔧 Tecnologías utilizadas
 
-## Próximas funcionalidades:
-- Se incluirán funcionalidades como la adición de foto de perfil, cambio de nombre de usuario y verificación de correo electrónico al registrarse.
- 
-## Despliegue futuro: 
-- El proyecto estará disponible en la web una vez finalizado.
+### 📌 Backend:
 
-## Tecnologías utilizadas: 
-- **Frontend**:
-    1. Css
-    2. Javascript
-- **Backend**:
-    1. Node.js
-    2. Express.js
-    3. MongoDB (Para la base de datos)
-    4. JWT (JSON Web Token) para autenticación
-- **Otros**:
-    1. Socket.io para la comunicación en tiempo real entre el cliente y el servidor. 
-________________________________________________________________________
+- **Node.js** + **Express.js** (para manejar el servidor y API REST).
+- **MongoDB** (base de datos NoSQL para almacenar usuarios y mensajes).
+- **JWT (JSON Web Token)** (autenticación segura).
+- **Socket.io** (comunicación en tiempo real).
+- **Google Cloud APIs** (para futuras mejoras y servicios en la nube).
 
-# Real-Time Chat
+### 🎨 Frontend:
 
-This is a Real-Time Chat project that allows users to register, log in with their email or username, add friends, search for added users, and chat in real-time.
+- **HTML, CSS y JavaScript** (interfaz de usuario).
+- **Socket.io-client** (para la comunicación en tiempo real con el servidor).
 
-## Features
+### ☁️ Almacenamiento:
 
-- **User Registration**: Users can register by providing their email or a unique username.
-- **Login**: Users can log in using their email or username.
-- **Add Friends**: Users can search for and add other users as friends using their username.
-- **Real-Time Chat**: Users can send and receive messages in real-time.
-- **Search Friends**: Users can search for added users in their friend list after adding them.
+- **Dropbox** (para almacenar y gestionar imágenes de perfil de los usuarios).
 
-## Upcoming Features:
-- Features such as profile picture upload, username change, and email verification during registration will be included.
+## 📌 Instalación y configuración
 
-## Future Deployment:
-- The project will be available online once completed.
+1. Clonar el repositorio:
 
-## Technologies Used:
-- **Frontend**:
-    1. CSS
-    2. JavaScript
-- **Backend**:
-    1. Node.js
-    2. Express.js
-    3. MongoDB (For the database)
-    4. JWT (JSON Web Token) for authentication
-- **Others**:
-    1. Socket.io for real-time communication between the client and server.
-=======
-Chat en tiempo real, utilizando Node.js para el backend, JavaScript y CSS para el frontend, y MongoDB como base de datos.
-Modo de uso:
+   ```sh
+   git clone https://github.com/tu_usuario/chat-en-tiempo-real.git
+   cd chat-en-tiempo-real
+   ```
 
-Registrarse con su email, contraseña y nombre de usuario.
-Iniciar sesión con la cuenta creada anteriormente.
-Agregar a otro usuario.
-Comenzar a chatear.
-La aplicación tiene funcionalidades muy limitadas, solo se puede agregar usuarios, cambiar su foto de perfil, su nombre de usuario y chatear.
+2. Instalar dependencias:
 
-It is in production.
---------------------
-English:
-Real-time chat, using Node.js for the backend, JavaScript and CSS for the frontend, and MongoDB as the database.
-How to use:
+   ```sh
+   npm install
+   ```
 
-Register with your email, password, and username.
-Log in with the account created previously.
-Add another user.
-Start chatting.
-The application has very limited features; you can only add users, change their profile picture, username, and chat.
-It is a small-scale project, aimed at learning and improving.
+3. Configurar las variables de entorno en un archivo `.env` en la raíz del proyecto:
+
+   ```env
+   PORT=3055  # Puerto en el que se ejecutará el servidor
+   MONGO_URI=tu_conexion_mongodb  # URL de conexión a la base de datos MongoDB
+   JWT_SECRET=tu_secreto_jwt  # Clave secreta para la autenticación con JWT
+   ACCESS_TOKEN_DROPBOX=tu_access_token_dropbox  # Token de acceso para Dropbox
+   FRONTEND_URL=https://flopichat.up.railway.app  # URL del frontend desplegado
+   GMAIL_CLIENT_ID=tu_client_id_de_gmail  # Credenciales para el servicio de correos
+   GMAIL_CLIENT_SECRET=tu_client_secret_de_gmail
+   GMAIL_REFRESH_TOKEN=tu_refresh_token_de_gmail
+   GMAIL_USER=tu_correo_gmail
+   GMAIL_SUPPORT=tu_correo_de_soporte
+   ```
+
+4. Iniciar el servidor:
+
+   ```sh
+   npm start
+   ```
+
+## 🌍 Despliegue
+
+El proyecto está desplegado en **Railway**, permitiendo su acceso en la web.
+
+## 📌 Próximas funcionalidades
+
+- Mejoras en la interfaz gráfica.
+- Indicadores de estado (en línea/desconectado).
+- Encriptación de mensajes para mayor privacidad.
+
+## 📜 Licencia
+
+Este proyecto es de código abierto y se encuentra bajo la licencia MIT.
+
+---
+
+¡Si te gusta el proyecto, no dudes en darle una estrella ⭐ y contribuir con mejoras! 😊
+
