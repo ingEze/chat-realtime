@@ -3,7 +3,6 @@ import { MONGO_URI } from '../../config/config.js'
 
 export const connectDB = async () => {
   try {
-    console.log('MONGO_URI:', process.env.MONGO_URI)
     const conn = await mongoose.connect(MONGO_URI)
     console.log('MongoDB connected', conn.connection.host)
   } catch (err) {
