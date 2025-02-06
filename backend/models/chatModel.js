@@ -18,6 +18,11 @@ const chatSchema = new mongoose.Schema({
   timestamp: {
     type: Date,
     default: Date.now
+  },
+  read: {
+    type: Boolean,
+    default: false,
+    required: true
   }
 }, {
   timestamps: true

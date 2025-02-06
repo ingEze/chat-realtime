@@ -251,6 +251,13 @@ async function createExistingUser (profileImage, username) {
   `
 
   searchConversation.appendChild(containterUsersExisting)
+
+  containterUsersExisting.querySelector('.data-user-existing').addEventListener('click', () => {
+    searchConversation.value = ''
+    window.location.href = ` /chat.html?username=${username}`
+
+    containterUsersExisting.remove()
+  })
 }
 
 async function searchUsers (query) {
@@ -335,7 +342,6 @@ async function renderUsers (users) {
   })
 }
 
-// float container (add user)
 document.addEventListener('DOMContentLoaded', () => {
   const addUserContainer = document.querySelector('.add-user-container')
   const addUserFloat = document.getElementById('addUserFloat')
@@ -355,7 +361,6 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 })
 
-// add friend
 async function addFriend (username) {
   try {
     const response = await fetch('/friends/add', {
@@ -529,7 +534,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 })
 
-// chats
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     const response = await fetch('/friends/user/friend', {
@@ -571,7 +575,7 @@ function createChat (username, profileImage, message, timestamp) {
       </div>
       <div class="chat-content">
         <span class="last-message">${message}</span>
-        <span class="new-message-indicator">•</span>
+        <span class="new-message-indicator"></span>
     </div>
     `
   containerMain.appendChild(chatsContainer)
@@ -629,7 +633,6 @@ document.querySelector('#logout').addEventListener('click', async () => {
   }
 })
 
-// function view profile image
 function viewUserImage (element, imageUrl) {
   element.addEventListener('click', () => {
     const body = document.body
@@ -662,7 +665,6 @@ function viewUserImage (element, imageUrl) {
   })
 }
 
-// funcion loader
 function createAnimationLoad (container) {
   const loader = document.createElement('div')
   loader.classList.add('loader')

@@ -1,6 +1,7 @@
 import { Server } from 'socket.io'
 import { ACCEPTED_ORIGINS } from '../config/cors.js'
 import { ChatService } from './services/chatService.js'
+import { Chat } from './models/chatModel.js'
 
 let io
 const userSockets = new Map()
@@ -17,6 +18,21 @@ const initSocket = (server) => {
 
   io.on('connection', (socket) => {
     console.log('User connected', socket.id)
+
+    socket.on('messagesRead', async ({ sender, recipient }) => {
+      try {
+        const result = await Chat.updateMany(
+          { sender, recipient, read: false },
+          { $set: { read: true } }
+        )
+
+        console.log('update message:', result.modifiedCount)
+
+        io.to(sender).emit('messagesRead', { recipient })
+      } catch (err) {
+        console.error('Error in messageRead:', err.message)
+      }
+    })
 
     socket.on('joinChat', async ({ sender, recipient }) => {
       console.log('recipient', recipient)
@@ -80,7 +96,8 @@ const initSocket = (server) => {
             message: savedMessage.message,
             sender: savedMessage.sender,
             recipient: savedMessage.recipient,
-            timestamp: timestampFormatted
+            timestamp: timestampFormatted,
+            read: savedMessage.read || false
           })
 
           const roomMembers = io.sockets.adapter.rooms.get(room)

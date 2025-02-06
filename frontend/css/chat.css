@@ -209,7 +209,7 @@ body {
     right: 7px;
 }
 
-.read-status i.check {
+.read-status i.read {
     color: var(--check);
 }
 

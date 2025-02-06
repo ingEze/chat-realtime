@@ -18,6 +18,14 @@ class ChatSocket {
       this.currentRoom = room
     })
 
+    this.socket.on('messagesRead', ({ recipient, sender }) => {
+      console.log(`Messages read by ${recipient}`)
+
+      document.querySelectorAll(`.message-sent[data-recipient="${sender}"] .read-status i`).forEach(status => {
+        status.classList.add('read')
+      })
+    })
+
     this.socket.on('receiveMessage', (messageData) => {
       const chatMessage = document.querySelector('.chat-messages')
       if (!chatMessage) {
@@ -28,7 +36,9 @@ class ChatSocket {
         const messageElement = this.createMessageElement(
           messageData.message,
           messageData.sender,
-          messageData.timestamp
+          messageData.recipient,
+          messageData.timestamp,
+          messageData.isRead
         )
         chatMessage.appendChild(messageElement)
         chatMessage.scrollTop = chatMessage.scrollHeight
@@ -76,6 +86,13 @@ class ChatSocket {
     })
   }
 
+  markMessageAsRead () {
+    this.socket.emit('messagesRead', {
+      sender: this.currentUser,
+      recipient: this.recipientId
+    })
+  }
+
   sendMessage (recipient, message) {
     console.log('sending message to:', recipient)
     if (!this.currentUser) {
@@ -110,21 +127,24 @@ class ChatSocket {
     document.querySelector('.chat-input').value = ''
   }
 
-  createMessageElement (message, senderId, timestamp) {
+  createMessageElement (message, senderId, timestamp, isRead, recipientId) {
     const messageDiv = document.createElement('div')
     messageDiv.className = `message ${senderId === this.currentUser ? 'message-sent' : 'message-received'}`
+    messageDiv.setAttribute('data-recipient', recipientId)
+
+    const readStatus = isRead ? 'read' : ''
 
     messageDiv.innerHTML = `
-      <div class="message-content">${message}</div>
-      <div class="message-info">
-        <span class="message-time">${timestamp}</span>
-        ${senderId === this.currentUser
-          ? `<div class="read-status">
-               <i class="fa fa-check check"></i>
-               <i class="fa fa-check check"></i>
-             </div>`
-          : ''}
-      </div>
+       <div class="message-content">${message}</div>
+    <div class="message-info">
+      <span class="message-time">${timestamp}</span>
+      ${senderId === this.currentUser
+        ? `<div class="read-status ${readStatus ? 'read' : ''}">
+             <i class="fa fa-check ${readStatus ? 'read' : ''}"></i>
+             <i class="fa fa-check ${readStatus ? 'read' : ''}"></i>
+           </div>`
+        : ''}
+    </div>
     `
 
     return messageDiv
@@ -191,13 +211,16 @@ class ChatSocket {
           const messageElement = this.createMessageElement(
             msg.message,
             msg.sender,
-            time
+            time,
+            msg.isRead || false
           )
           fragment.appendChild(messageElement)
         })
 
         chatMessages.appendChild(fragment)
         chatMessages.scrollTop = chatMessages.scrollHeight
+
+        this.markMessageAsRead()
       } catch (err) {
         console.error('Error recovery message', err.message)
         createAlert(err.message)
@@ -303,7 +326,6 @@ function preloadImage (url) {
   })
 }
 
-// get username and profileImage
 document.addEventListener('DOMContentLoaded', async () => {
   const params = new URLSearchParams(window.location.search)
   const usernameParams = params.get('username')
@@ -432,8 +454,10 @@ function createAlert (message) {
 }
 
 async function friendVerify () {
+  const urlParams = new URLSearchParams(window.location.search)
+  const username = urlParams.get('username')
   try {
-    const response = await fetch('/friends/verify', {
+    const response = await fetch(`/friends/verify?username=${username}`, {
       method: 'GET',
       credentials: 'include'
     })

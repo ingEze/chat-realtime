@@ -236,7 +236,7 @@ export class FriendController {
         })
       }
 
-      const { username } = req.body
+      const { username } = req.query
       if (!username) {
         return res.status(400).json({
           success: false,
@@ -245,7 +245,6 @@ export class FriendController {
       }
 
       const result = await FriendService.verifyFriend(userId, username)
-      console.log('result in controller', result)
       if (!result) {
         return res.status(400).json({
           success: false,

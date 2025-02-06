@@ -243,8 +243,6 @@ export class FriendService {
         ]
       })
 
-      console.log('result in service', result)
-
       if (!result) {
         console.error('friend not found')
         throw new Error('Friend not found')

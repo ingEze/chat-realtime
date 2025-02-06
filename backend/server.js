@@ -36,7 +36,8 @@ app.use('/chat', chatRouter)
 app.use('/setting', settingRouter)
 app.use('/protected', protectedUserRouter)
 
-const port = process.env.PORT || 3055
+// const port = process.env.PORT || 3000
+const port = 3000
 
 try {
   await connectDB()
